@@ -1,5 +1,6 @@
 <style lang="less">
     @import './order-details.less';
+    
 </style>
 <template>
   <div style="padding:15px;background:#FFF;overflow:hidden">
