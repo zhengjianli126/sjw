@@ -57,6 +57,9 @@
 </template>
 <script>
     export default {
+        methods:{
+
+        },
         data () {
             return {
                 cityList: [
