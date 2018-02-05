@@ -13,6 +13,7 @@
 </template>
 <script>
 export default {
+    
     data () {
             return {
                 columns1: [
@@ -68,6 +69,9 @@ export default {
                     }
                 ]
             }
+        },
+        methods:{
+        
         }
     }
 </script>

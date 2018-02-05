@@ -12,7 +12,7 @@ util.title = function (title) {
 };
 
 const ajaxUrl = env === 'development'
-    ? 'https://easy-mock.com/mock/5a2cdfcbb1f96e7063596659/api'
+    ? 'http://10.139.50.180:8101/'
     : env === 'production'
         ? 'https://www.url.com'
         : 'https://debug.url.com';

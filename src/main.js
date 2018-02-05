@@ -29,6 +29,16 @@ new Vue({
         this.$store.commit('updateMenulist');
         // iview-admin检查更新
         util.checkUpdate(this);
+        util.ajax('/SJWCRM/login', {
+            userName:'张三',
+            password: '666' 
+        })
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     },
     created () {
         let tagsList = [];
