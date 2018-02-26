@@ -99,7 +99,7 @@
                         key: 'age'
                     },
                     {
-                        title: '年华交易总额（元）',
+                        title: '年化交易总额（元）',
                         key: 'address'
                     }
                 ],
@@ -122,25 +122,6 @@
                         "title": "用户名称",
                         "key": "show",
                         "width": 150,
-                      //  "sortable": true,
-                      //  filters: [
-                        //     {
-                        //         label: 'Greater than 4000',
-                        //         value: 1
-                        //     },
-                        //     {
-                        //         label: 'Less than 4000',
-                        //         value: 2
-                        //     }
-                        // ],
-                        //filterMultiple: false,
-                        // filterMethod (value, row) {
-                        //     if (value === 1) {
-                        //         return row.show > 4000;
-                        //     } else if (value === 2) {
-                        //         return row.show < 4000;
-                        //     }
-                        // }
                     },
                     {
                         "title": "订单号",
