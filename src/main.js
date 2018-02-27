@@ -30,11 +30,12 @@ new Vue({
         // iview-admin检查更新
         //util.checkUpdate(this);
         util.ajax('/SJWCRM/getCheckMonthAccount', {
-            method:'POST',
+            method:'get',
             
             params:{
-            userName:'张三',
-            password: '666'} 
+            //userName:'张三',
+            password: '666'
+        } 
         })
         .then(function (response) {
             console.log(response);
