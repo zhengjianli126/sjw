@@ -29,9 +29,12 @@ new Vue({
         this.$store.commit('updateMenulist');
         // iview-admin检查更新
         //util.checkUpdate(this);
-        util.ajax('/SJWCRM/login', {
+        util.ajax('/SJWCRM/getCheckMonthAccount', {
+            method:'POST',
+            
+            params:{
             userName:'张三',
-            password: '666' 
+            password: '666'} 
         })
         .then(function (response) {
             console.log(response);
