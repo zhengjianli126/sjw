@@ -16,7 +16,7 @@ module.exports = {
         'vender-exten': '@/vendors/vendors.exten.js'
     },
     output: {
-        path: path.resolve(__dirname, '../dist/dist')
+        path: path.resolve(__dirname, '../dist/static')
     },
     devServer: {
       
@@ -80,7 +80,10 @@ module.exports = {
             },
             {
                 test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/,
-                loader: 'url-loader?limit=1024'
+                loader: 'url-loader?limit=1024&name=[hash].[ext]',
+                // 解决字体打包后不显示问题
+                
+               
             },
             {
                 test: /\.(html|tpl)$/,
