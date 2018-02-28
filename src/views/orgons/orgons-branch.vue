@@ -6,10 +6,26 @@
         <div style="margin-top:10px;">
             <row>
                 <span>分部详情</span>
-                <Button type="primary" icon="plus-round">添加</Button>
-                <Button type="primary" icon="edit">修改</Button>
-                <Button type="error" icon="trash-a" @click="modal2 = true">删除</Button>
-                <Modal v-model="modal2" width="360">
+                <Button type="primary" icon="plus-round" @click="addFlag = true">添加</Button>
+                <Button type="primary" icon="edit" @click="editFlag = true">修改</Button>
+                <Button type="error" icon="trash-a" @click="deleteFlag = true">删除</Button>
+                <Modal
+                    v-model="addFlag"
+                    title="添加分部"
+                    @on-ok="addOk"
+                    @on-cancel="addCancel">
+                    <p>Content of dialog</p>
+                    <p>Content of dialog</p>
+                    <p>Content of dialog</p>
+                </Modal>
+                <Modal
+                    v-model="editFlag"
+                    title="修改分部"
+                    @on-ok="editOk"
+                    @on-cancel="editCancel">
+                    <p>修改内容</p>
+                </Modal>
+                <Modal v-model="deleteFlag" width="360">
                     <p slot="header" style="color:#f60;text-align:center">
                         <Icon type="information-circled"></Icon>
                         <span>删除</span>
@@ -21,6 +37,7 @@
                         <Button type="error" size="large" long :loading="modal_loading" @click="del">删除</Button>
                     </div>
                 </Modal>
+                
              </row>
              <div style="margin-top:10px;">
                 <Table :columns="column2" :data="data2"></Table>
@@ -37,7 +54,9 @@ import util from 'utils';
     export default {
         data () {
             return {
-                modal2: false,
+                addFlag: false,
+                editFlag: false,
+                deleteFlag: false,
                 column1: [
                     {
                         title: '分部名称',
@@ -61,45 +80,65 @@ import util from 'utils';
                     }
                 ],
                 data1: [],
-                 column2: [
-                    {
-                        type: 'selection',
-                        width: 60,
-                        align: 'center'
-                    },
-                    {
-                        title: "序号",
-                        type: 'index',
-                        width: 60,
-                        align: 'center'
-                    },
-                    {
-                        title: '子分部数量',
-                        align: 'center',
-                        key: 'age'
-                    },
-                    {
-                        title: '理财师数量',
-                        align: 'center',
-                        key: 'address'
-                    },
-                    {
-                        title: '客户数量',
-                        align: 'center',
-                        key: 'address'
-                    }
-                ],
-                data2: []
+                column2: [
+                {
+                    type: 'selection',
+                    width: 60,
+                    align: 'center'
+                },
+                {
+                    title: "序号",
+                    type: 'index',
+                    width: 60,
+                    align: 'center'
+                },
+                {
+                    title: '子分部数量',
+                    align: 'center',
+                    key: 'age'
+                },
+                {
+                    title: '理财师数量',
+                    align: 'center',
+                    key: 'address'
+                },
+                {
+                    title: '客户数量',
+                    align: 'center',
+                    key: 'address'
+                }
+            ],
+            data2: []
             }
         },
         methods:{
-             del () {
+            addFlag () {
+                this.$Modal.confirm({
+                    okText: '保存',
+                    cancelText: '关闭'
+                });
+            },
+            addOk () {
+                this.$Message.info('');
+            },
+            addCancel () {
+                this.$Message.info('');
+            },
+
+            editOk () {
+                this.$Message.info('');
+            },
+            editCancel () {
+                this.$Message.info('');
+            },
+
+            del () {
                 this.modal_loading = true;
                 setTimeout(() => {
                     this.modal_loading = false;
-                    this.modal2 = false;
-                    this.$Message.success('Successfully delete');
-                }, 2000);
+                    this.deleteFlag = false;
+                    this.$Message.success('删除成功');
+                }, 1000);
             },
             async  getData (){
             

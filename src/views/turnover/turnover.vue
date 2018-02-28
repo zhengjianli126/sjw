@@ -5,55 +5,62 @@
 <div>
     <div class="tradeVolumeSta">
         <div class="tradeV_left">
-            <div><span>2</span><br/><span>今日交易额（元）</span></div>
-            <div><span>1</span><br/><span>昨日交易额（元）</span></div>
-            <div><span>2000</span><br/><span>本月交易额（元）</span></div>
-            <div><span>3000</span><br/><span>上月交易额（元）</span></div>
+            <div><span>{{todayTurnovalCount}}</span><br/><span>今日交易额（元）</span></div>
+            <div><span>{{yestodayTurnovalCount}}</span><br/><span>昨日交易额（元）</span></div>
+            <div><span>{{thisMonthTurnovalCount}}</span><br/><span>本月交易额（元）</span></div>
+            <div><span>{{lastMonthTurnovalCount}}</span><br/><span>上月交易额（元）</span></div>
         </div>
         <div class="tradeV_right">
-            <div><span>4000</span><br/><span>累计交易额（元）</span></div>
-            <div><span>5000</span><br/><span>累计年化交易额（元）</span></div>
+            <div><span>{{totalTurnovalCount}}</span><br/><span>累计交易额（元）</span></div>
+            <div><span>{{totalYearTuranovalCount}}</span><br/><span>累计年化交易额（元）</span></div>
         </div>
     </div>
     <div style="padding:15px;background:#FFF;overflow:hidden">
         <row style="margin-top:10px">
-            <Col span="8">
-                查询日期 ：<Date-picker type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
-                至<Date-picker type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
+            <Col span="12">
+                查询日期 ：<Date-picker type="date" v-model="StarTime"  placeholder="选择日期" style="width: 200px"></Date-picker>
+                至&nbsp;&nbsp;<Date-picker v-model="EndTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
             </Col>
         </row>
         <row style="margin-top:10px">
             <Col span="6">
                 分部名称 ：
-                <Select :model.sync="model1" span="6" style="width:200px">
+                <Select v-model="organize" span="6" style="width:200px">
                     <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
             <Col span="6">
                 子分部名称 ：
-                <Select :model.sync="model1" span="6" style="width:200px">
+                <Select v-model="sonOrganize" span="6" style="width:200px">
                     <Option v-for="item in cityList2" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
             <Col span="6">
                 理财师 ：
-                <Select :model.sync="model1" span="6" style="width:200px">
+                <Select v-model="userName" span="6" style="width:200px">
                     <Option v-for="item in cityList3" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
-            <Button type="primary" icon="ios-search">搜索</Button>
+            <Button type="primary" @click="searchBtn" icon="ios-search">搜索</Button>
         </row>
         <h2 style="margin-top:40px">总数据<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
-        <div style="width:600px;margin-top:10px;">
+        <div style="width:100%;margin-top:10px;">
             <Table border :columns="columns1" :data="data1"></Table>
         </div>
     </div>
 </div>
 </template>
 <script>
+import util from '../../libs/util';
 export default {
     data () {
         return {
+            StarTime: '',
+            EndTime: '',
+            organize: '',
+            sonOrganize: '',
+            userName: '',
+            todayTurnovalCount: '',
             cityList: [
                 {value: 'fenbu1',label: '分部1区'},
                 {value: 'fenbu2',label: '分部2区'},
@@ -71,15 +78,65 @@ export default {
             ],
             model1: '',
             model2: '',
+            model3: '',
             columns1: [
-                {title: ' ',key: 'name'},
-                {title: '总交易额（元）',key: 'age'},
-                {title: '总年化交易额（元）',key: 'address'}
+                {title: ' ',key: 'totalOrder'},
+                {title: '总交易额（元）',key: 'totalTurnover'},
+                {title: '总年化交易额（元）',key: 'totalTurnover_year'}
             ],
             data1: [
-                {name: '总计',age: 111222,address: '333444'}
+                {totalOrder: '总计',totalTurnover: '',totalTurnover_year: ''}
             ]
         }
+    },
+    mounted() {
+        util.ajax({
+            url: '/SJWCRM/initTurnovalCount', 
+            method:'post',
+            params: {
+                userID: this.userID,
+                levelArent: this.levelArent
+            }
+        }).then(res => {
+            this.todayTurnovalCount = res.data.data.todayTurnovalCount,
+            this.yestodayTurnovalCount = res.data.data.yestodayTurnovalCount,
+            this.thisMonthTurnovalCount = res.data.data.thisMonthTurnovalCount,
+            this.lastMonthTurnovalCount = res.data.data.lastMonthTurnovalCount,
+            this.totalTurnovalCount = res.data.data.totalTurnovalCount,
+            this.totalYearTuranovalCount = res.data.data.totalYearTuranovalCount,
+            this.data1[0].totalTurnover = res.data.data.totalTurnover,
+            this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year,
+            this.Id = res.data.Id
+        }).catch(error => {
+            
+        });
+    },
+    methods: {
+        searchBtn() {
+            util.ajax({
+                url: '/SJWCRM/getTuranovalCount',
+                method: 'post',
+                params: {
+                    StarTime: this.StarTime && this.StarTime.getTime()/1000,
+                    EndTime: this.EndTime && this.EndTime.getTime()/1000,
+                    Id: this.Id,
+                    userName: this.userName,
+                    organize: this.organize,
+                    sonOrganize: this.sonOrganize
+                }
+            }).then(res => {
+                this.todayTurnovalCount = res.data.data.todayTurnovalCount,
+                this.yestodayTurnovalCount = res.data.data.yestodayTurnovalCount,
+                this.thisMonthTurnovalCount = res.data.data.thisMonthTurnovalCount,
+                this.lastMonthTurnovalCount = res.data.data.lastMonthTurnovalCount,
+                this.totalTurnovalCount = res.data.data.totalTurnovalCount,
+                this.totalYearTuranovalCount = res.data.data.totalYearTuranovalCount,
+                this.data1[0].totalTurnover = res.data.data.totalTurnover,
+                this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year
+            }).catch(error => {
+            
+            });
+        },
     }
 }
 </script>

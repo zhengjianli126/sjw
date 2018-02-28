@@ -7,37 +7,37 @@
 <div>
     <div class="tradeVolumeSta">
         <div class="tradeV_left">
-            <div><span>2</span><br/><span>本月佣金（元）</span></div>
-            <div><span>1</span><br/><span>上月佣金（元）</span></div>
-            <div><span>2000</span><br/><span>累计佣金（元）</span></div>
+            <div><span>{{thisMonthCommition}}</span><br/><span>本月佣金（元）</span></div>
+            <div><span>{{lastMonthCommition}}</span><br/><span>上月佣金（元）</span></div>
+            <div><span>{{totalCommition}}</span><br/><span>累计佣金（元）</span></div>
         </div>
     </div>
     <div style="padding:15px;background:#FFF;overflow:hidden">
         <row style="margin-top:10px">
             <Col span="8">
-                选择月份 ：<Date-picker type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
+                选择月份 ：<Date-picker :model.sync="commitionMonth" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
             </Col>
         </row>
         <row style="margin-top:10px">
             <Col span="6">
                 分部名称 ：
-                <Select :model.sync="model1" span="6" style="width:200px">
+                <Select :model.sync="organize" span="6" style="width:200px">
                     <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
             <Col span="6">
                 子分部名称 ：
-                <Select :model.sync="model1" span="6" style="width:200px">
+                <Select :model.sync="sonOrganize" span="6" style="width:200px">
                     <Option v-for="item in cityList2" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
             <Col span="6">
                 理财师 ：
-                <Select :model.sync="model1" span="6" style="width:200px">
+                <Select :model.sync="userName" span="6" style="width:200px">
                     <Option v-for="item in cityList3" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
-            <Button type="primary" icon="ios-search">搜索</Button>
+            <Button @click="searchBtn" type="primary" icon="ios-search">搜索</Button>
         </row>
         <h2 style="margin-top:40px">总数据<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
         <div style="width:600px;margin-top:10px;">
@@ -46,24 +46,23 @@
         
 
         <div style="margin-top:40px;">
-            <Col span="3"><h2>订单详情<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
+            <Col span="5"><h2>订单详情<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
             <Col span="3"><Button type="primary" icon="ios-cloud-download" @click="exportData(1)">导出</Button></Col>
         </div>
         <div style="clear:both;padding-top:20px;">
-            <Table border :columns="columns8" :data="data7" size="small" ref="table"></Table>
+            <Table border :columns="columns8" :data="data8" size="small" ref="table"></Table>
         </div>
         <div style="margin-top:10px;float:right">
             <Page :total="40" size="small" show-elevator show-sizer></Page>
+            <!-- <Page :total="total" :page-size="pageSize"
+            :current="pageNum" size="small" show-total></Page> -->
         </div>
         <div style="margin-top:10px;float:right;line-height:22px;">显示？？条到？？条记录，总共？？条记录。</div>
-
-
-
-
     </div>
 </div>
 </template>
 <script>
+import util from '../../libs/util';
 export default {
     data () {
         return {
@@ -82,14 +81,20 @@ export default {
                 {value: 'licaishi2',label: '理财师2号'},
                 {value: 'licaishi3',label: '理财师3号'}
             ],
-            model1: '',
+            organize: '',
+            sonOrganize: '',
+            userName: '',
+            pageNum: '',
+            pageSize: '',
+            total: '',
+            commitionMonth: '',
             columns1: [
-                {title: ' ',key: 'name'},
-                {title: '总交易额（元）',key: 'age'},
-                {title: '总年化交易额（元）',key: 'address'}
+                {title: ' ',key: 'totalOrder'},
+                {title: '总交易额（元）',key: 'totalTurnover'},
+                {title: '总年化交易额（元）',key: 'totalTurnover_year'}
             ],
             data1: [
-                {name: '总计',age: 111222,address: '333444'}
+                {totalOrder: '总计',totalTurnover: '',totalTurnover_year: ''}
             ],
             columns8: [
                 {"title": "序号", "type": "index", "fixed": "left", "width": 100},
@@ -105,21 +110,51 @@ export default {
                 {"title": "分部名称", "key": "week", "width": 150},
                 {"title": "大大俄武器", "key": "month", "width": 150}
             ],
-            data7: [
-                {"fav": 0, "show": 7302, "weak": 5627, "signin": 1563, "click": 4254, "active": 1438, "day7": 274, "day30": 285, "tomorrow": 1727, "day": 558, "week": 4440, "month": 5610},
-                {"fav": 0, "show": 4720, "weak": 4086, "signin": 3792, "click": 8690, "active": 8470, "day7": 8172, "day30": 5197, "tomorrow": 1684, "day": 2593, "week": 2507, "month": 1537},
-                {"fav": 0, "show": 7181, "weak": 8007, "signin": 8477, "click": 1879, "active": 16, "day7": 2249, "day30": 3450, "tomorrow": 377, "day": 1561, "week": 3219, "month": 1588},
-                {"fav": 0, "show": 9911, "weak": 8976, "signin": 8807, "click": 8050, "active": 7668, "day7": 1547, "day30": 2357, "tomorrow": 7278, "day": 5309, "week": 1655, "month": 9043},
-                {"fav": 0, "show": 934, "weak": 1394, "signin": 6463, "click": 5278, "active": 9256, "day7": 209, "day30": 3563, "tomorrow": 8285, "day": 1230, "week": 4840, "month": 9908},
-                {"fav": 0, "show": 6856, "weak": 1608, "signin": 457, "click": 4949, "active": 2909, "day7": 4525, "day30": 6171, "tomorrow": 1920, "day": 1966, "week": 904, "month": 6851},
-                {"fav": 0, "show": 5107, "weak": 6407, "signin": 4166, "click": 7970, "active": 1002, "day7": 8701, "day30": 9040, "tomorrow": 7632, "day": 4061, "week": 4359, "month": 3676},
-                {"fav": 0, "show": 862, "weak": 6520, "signin": 6696, "click": 3209, "active": 6801, "day7": 6364, "day30": 6850, "tomorrow": 9408, "day": 2481, "week": 1479, "month": 2346},
-                {"fav": 0, "show": 567, "weak": 5859, "signin": 128, "click": 6593, "active": 1971, "day7": 7596, "day30": 3546, "tomorrow": 6641, "day": 1611, "week": 5534, "month": 3190},
-                {"fav": 0, "show": 3651, "weak": 1819, "signin": 4595, "click": 7499, "active": 7405, "day7": 8710, "day30": 5518, "tomorrow": 428, "day": 9768, "week": 2864, "month": 5811}
+            data8: [
+                
             ]
         }
     },
+    mounted() {
+        util.ajax({
+            url: '/SJWCRM/initCheckMonthAccount', 
+            method:'post',
+            params: {
+                userID: this.userID,
+                levelArent: this.levelArent
+            }
+        }).then(res => {
+            this.pageNum = res.data.pageNum,
+            this.pageSize = res.data.pageSize,
+            this.data1[0].totalOrder = res.data.totalOrder,
+            this.data1[0].totalTurnover = res.data.data.totalTurnover,
+            this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year,
+            this.data8 = res.data.data.data8
+        }).catch(err => {
+
+        });
+    },
     methods: {
+        searchBtn() {
+            util.ajax({
+                url: '/SJWCRM/getCheckMonthAccount',
+                method: 'post',
+                params: {
+                    commitionMonth: this.commitionMonth && this.commitionMonth.getTime()/1000,
+                    Id: '123',
+                    userName: this.userName,
+                    organize: this.organize,
+                    sonOrganize: this.sonOrganize
+                }
+            }).then(res => {
+                this.data1[0].totalOrder = res.data.data.totalOrder,
+                this.data1[0].totalTurnover = res.data.data.totalTurnover,
+                this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year,
+                this.data8 = res.data.data.data8
+            }).catch(err => {
+
+            });
+        },
         exportData (type) {
             if (type === 1) {
                 this.$refs.table.exportCsv({
@@ -134,7 +169,7 @@ export default {
                 this.$refs.table.exportCsv({
                     filename: 'Custom data',
                     columns: this.columns8.filter((col, index) => index < 4),
-                    data: this.data7.filter((data, index) => index < 4)
+                    data: this.data8.filter((data, index) => index < 4)
                 });
             }
         }

@@ -3,12 +3,41 @@
         <div style="width:1000px">
             <Table :columns="column1" :data="data1"></Table>
         </div>
-        <div style="margin-top:10px;">
+        <div style="margin-top:10px;">     
             <row>
                 <span>分部详情</span>
-                <Button type="primary" icon="plus-round">添加</Button>
-                <Button type="primary" icon="edit">修改</Button>
-                <Button type="error" icon="trash-a">删除</Button>
+                <Button type="primary" @click="addFlag = true" icon="plus-round">添加</Button>
+                <Button type="primary" @click="editFlag = true" icon="edit">修改</Button>
+                <Button type="error" @click="deleteFlag = true" icon="trash-a">删除</Button>
+
+                <Modal
+                    v-model="addFlag"
+                    title="添加分部"
+                    @on-ok="addOk"
+                    @on-cancel="addCancel">
+                    <p>Content of dialog</p>
+                    <p>Content of dialog</p>
+                    <p>Content of dialog</p>
+                </Modal>
+                <Modal
+                    v-model="editFlag"
+                    title="修改分部"
+                    @on-ok="editOk"
+                    @on-cancel="editCancel">
+                    <p>修改内容</p>
+                </Modal>
+                <Modal v-model="deleteFlag" width="360">
+                    <p slot="header" style="color:#f60;text-align:center">
+                        <Icon type="information-circled"></Icon>
+                        <span>删除</span>
+                    </p>
+                    <div style="text-align:center">
+                        <p>确定要删除吗</p>    
+                    </div>
+                    <div slot="footer">
+                        <Button type="error" size="large" long :loading="modal_loading" @click="del">删除</Button>
+                    </div>
+                </Modal>
              </row>
              <div style="margin-top:10px;">
                 <Table :columns="column2" :data="data2"></Table>
@@ -25,6 +54,9 @@ import util from 'utils';
     export default {
         data () {
             return {
+                addFlag: false,
+                editFlag: false,
+                deleteFlag: false,
                 column1: [
                     {
                         title: '机构名称',
@@ -114,6 +146,34 @@ import util from 'utils';
             }
         },
         methods:{
+            addFlag () {
+                this.$Modal.confirm({
+                    okText: '保存',
+                    cancelText: '关闭'
+                });
+            },
+            addOk () {
+                this.$Message.info('Clicked ok');
+            },
+            addCancel () {
+                this.$Message.info('Clicked cancel');
+            },
+
+            editOk () {
+                this.$Message.info('Clicked ok');
+            },
+            editCancel () {
+                this.$Message.info('Clicked cancel');
+            },
+
+            del () {
+                this.modal_loading = true;
+                setTimeout(() => {
+                    this.modal_loading = false;
+                    this.deleteFlag = false;
+                    this.$Message.success('删除成功');
+                }, 1000);
+            },
             async  getData (){
             
               // let result = await util.ajax.get('/list');
@@ -126,6 +186,14 @@ import util from 'utils';
                }
               
             }       
+        },
+        add () {
+            this.$Modal.confirm({
+                title: 'Title',
+                content: '<p>Content of dialog</p><p>Content of dialog</p>',
+                okText: 'OK',
+                cancelText: 'Cancel'
+            });
         },
         created(){
             this.getData();
