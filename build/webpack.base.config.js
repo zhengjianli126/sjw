@@ -80,7 +80,7 @@ module.exports = {
             },
             {
                 test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/,
-                loader: 'url-loader?limit=1024&name=[hash].[ext]',
+                loader: 'url-loader',
                 // 解决字体打包后不显示问题
                 
                
