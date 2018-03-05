@@ -2,24 +2,27 @@ import axios from 'axios';
 import env from '../../build/env';
 import semver from 'semver';
 import packjson from '../../package.json';
-
+import qs from 'qs';
 let util = {
 
 };
+
 util.title = function (title) {
     title = title || '首金网CRM管理系统';
     window.document.title = title;
 };
 
-const ajaxUrl = env === 'development'
-    ? 'http://10.139.50.180:8101/'
-    : env === 'production'
-        ? 'https://www.url.com'
-        : 'https://debug.url.com';
+// const ajaxUrl = env === 'development'
+//     ? 'http://10.253.43.83:8101/'
+//     : env === 'production'
+//         ? 'https://www.url.com'
+//         : 'https://debug.url.com';
 
 util.ajax = axios.create({
-    baseURL: ajaxUrl,
-   
+    //baseURL:ajaxUrl,
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    },
     timeout: 30000
 });
 

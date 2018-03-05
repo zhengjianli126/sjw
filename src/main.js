@@ -11,7 +11,6 @@ import util from '@/libs/util';
 
 Vue.use(VueI18n);
 Vue.use(iView);
-
 new Vue({
     el: '#app',
     router: router,
@@ -29,13 +28,12 @@ new Vue({
         this.$store.commit('updateMenulist');
         // iview-admin检查更新
         //util.checkUpdate(this);
-        util.ajax('/SJWCRM/getCheckMonthAccount', {
-            method:'get',
-            
+        util.ajax('/SJWCRM/login', {
+            method:'post',
             params:{
-            //userName:'张三',
-            password: '666'
-        } 
+                userName:'张三',
+                password:'666'
+            }
         })
         .then(function (response) {
             console.log(response);

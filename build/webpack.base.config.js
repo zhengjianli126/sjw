@@ -19,9 +19,16 @@ module.exports = {
         path: path.resolve(__dirname, '../dist/static')
     },
     devServer: {
-      
-       
-        port:9090
+        port:9090,
+        host:'127.0.0.1',
+        proxy:{
+            '/SJWCRM/*':{
+                target:'http://10.253.43.83:8101/',
+                changeOrigin: true,
+                secure: false
+            }
+        }
+        // 反向代理，解决跨域
     },
     module: {
         rules: [
