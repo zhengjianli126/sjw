@@ -12,12 +12,6 @@ util.title = function (title) {
     window.document.title = title;
 };
 
-// const ajaxUrl = env === 'development'
-//     ? 'http://10.253.43.83:8101/'
-//     : env === 'production'
-//         ? 'https://www.url.com'
-//         : 'https://debug.url.com';
-
 util.ajax = axios.create({
     //baseURL:ajaxUrl,
     headers: {

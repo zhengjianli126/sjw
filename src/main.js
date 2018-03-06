@@ -8,7 +8,7 @@ import '@/locale';
 import 'iview/dist/styles/iview.css';
 import VueI18n from 'vue-i18n';
 import util from '@/libs/util';
-
+Vue.prototype.util = util;
 Vue.use(VueI18n);
 Vue.use(iView);
 new Vue({
@@ -27,20 +27,7 @@ new Vue({
         // 权限菜单过滤相关
         this.$store.commit('updateMenulist');
         // iview-admin检查更新
-        //util.checkUpdate(this);
-        util.ajax('/SJWCRM/login', {
-            method:'post',
-            params:{
-                userName:'张三',
-                password:'666'
-            }
-        })
-        .then(function (response) {
-            console.log(response);
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        //util.checkUpdate(this)
     },
     created () {
         let tagsList = [];

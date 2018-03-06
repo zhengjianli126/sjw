@@ -186,11 +186,20 @@
             handleClickUserDropdown (name) {
                if (name === 'loginout') {
                     // 退出登录
-                    this.$store.commit('logout', this);
-                    this.$store.commit('clearOpenedSubmenu');
-                    this.$router.push({
-                        name: 'login'
-                    });
+                    this.util.ajax('/SJWCRM/logout',{
+                        method:'post',
+                        params:{
+                            id : 10
+                        }
+                    }).then((response)=> {
+                        this.$store.commit('logout', this);
+                        this.$store.commit('clearOpenedSubmenu');
+                        this.$router.push({
+                            name: 'login'
+                        });
+                    })
+
+                    
                 } else if(name==='showEditPassword'){
                     //zjl 修改密码弹框
                     this.editPasswordModal = true;
@@ -207,18 +216,14 @@
                 }
             },
             handleSubmenuChange (val) {
-                // console.log(val)
+               
             },
             beforePush (name) {
-                // if (name === 'accesstest_index') {
-                //     return false;
-                // } else {
-                //     return true;
-                // }
+              
                 return true;
             },
             fullscreenChange (isFullScreen) {
-                // console.log(isFullScreen);
+                
             },
             // zjl 修改密码
             cancelEditPass () {
@@ -227,8 +232,20 @@
             saveEditPass () {
                 this.$refs['editPasswordForm'].validate((valid) => {
                     if (valid) {
-                        this.savePassLoading = true;
-                        // you can write ajax request here
+                         this.savePassLoading = true;
+                        // /SJWCRM/ModifyPwd
+                        console.log(this.oldPass,this.newPass)
+                        this.util.ajax('/SJWCRM/ModifyPwd',{
+                            method:'post',
+                            params:{
+                               oldPwd:this.editPasswordForm.oldPass ,
+                               newPwd:this.editPasswordForm.newPass
+                            }
+                        }).then((res)=>{
+                            //this.savePassLoading = false;
+                           // this.editPasswordModal = false;
+                          //  console.log(res)
+                        })
                         //zjl ajax
                     }
             });
