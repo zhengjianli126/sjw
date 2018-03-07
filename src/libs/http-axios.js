@@ -21,7 +21,7 @@ axiosAjax.interceptors.response.use(
         res => {
             console.log(res)
             //登录超时  跳转
-            if(res.data.code==40003){
+            if(res.data.code==40003||res.data.code===40013){
                 router.push({
                     name: 'login'
                 }); 

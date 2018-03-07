@@ -189,7 +189,7 @@
                     this.util.ajax('/SJWCRM/logout',{
                         method:'post',
                         params:{
-                            id : 10
+                            id : Cookies.get('userId')
                         }
                     }).then(response=> {
                         this.$store.commit('logout', this);
@@ -198,7 +198,7 @@
                             name: 'login'
                         });
                     })
-
+                
                     
                 } else if(name==='showEditPassword'){
                     //zjl 修改密码弹框
