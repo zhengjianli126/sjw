@@ -191,7 +191,7 @@
                         params:{
                             id : 10
                         }
-                    }).then((response)=> {
+                    }).then(response=> {
                         this.$store.commit('logout', this);
                         this.$store.commit('clearOpenedSubmenu');
                         this.$router.push({
@@ -230,21 +230,26 @@
                 this.editPasswordModal = false;
             },
             saveEditPass () {
-                this.$refs['editPasswordForm'].validate((valid) => {
+                this.$refs['editPasswordForm'].validate(valid => {
                     if (valid) {
                          this.savePassLoading = true;
                         // /SJWCRM/ModifyPwd
-                        console.log(this.oldPass,this.newPass)
+                       
                         this.util.ajax('/SJWCRM/ModifyPwd',{
                             method:'post',
                             params:{
                                oldPwd:this.editPasswordForm.oldPass ,
                                newPwd:this.editPasswordForm.newPass
                             }
-                        }).then((res)=>{
-                            //this.savePassLoading = false;
-                           // this.editPasswordModal = false;
-                          //  console.log(res)
+                        }).then(res=>{
+                            this.savePassLoading = false;
+                            if(res.data.code==20000){
+                                this.$Message.success('密码修改成功');
+                                this.editPasswordModal = false;
+                            }else{
+                                this.$Message.error(res.data.msg);
+                            }
+                         
                         })
                         //zjl ajax
                     }

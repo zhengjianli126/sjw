@@ -58,7 +58,7 @@ export default {
     methods: {
         handleSubmit () {
             // let that = this;
-            this.$refs.loginForm.validate((valid) => {
+            this.$refs.loginForm.validate(valid => {
                     if (valid) {
                                 this.util.ajax('/SJWCRM/login', {
                         method:'post',
@@ -67,7 +67,7 @@ export default {
                             password:this.form.password
                         }
                     })
-                    .then((response)=> {
+                    .then(response => {
                         let curData = response.data;
                         // 登陆成功后存储用户信息；
                         if(curData.code===20000){
@@ -95,7 +95,7 @@ export default {
                                     }
                         
                     })
-                    .catch((error)=> {
+                    .catch(error=> {
                         console.log(error);
                     });
                     

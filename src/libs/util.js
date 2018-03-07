@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosAjax from './http-axios';
 import env from '../../build/env';
 import semver from 'semver';
 import packjson from '../../package.json';
@@ -12,14 +12,7 @@ util.title = function (title) {
     window.document.title = title;
 };
 
-util.ajax = axios.create({
-    //baseURL:ajaxUrl,
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    timeout: 30000
-});
-
+util.ajax =  axiosAjax;       
 util.inOf = function (arr, targetArr) {
     let res = true;
     arr.map(item => {

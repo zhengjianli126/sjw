@@ -47,15 +47,14 @@
     </div>
     <div style="margin-top:10px;float:right">
       <!-- <Page :total="40" size="small" show-elevator show-sizer></Page> -->
-      <Page
-            :total="total"
+      <Page :total="total"
             :page-size="pageSize"
             :current="pageNum"
             size="small"
             on-change="getOrderList"
             show-total
             show-sizer>
-    </Page>
+      </Page>
     </div>
   </div>
 </template>
@@ -245,21 +244,35 @@ import util from '../../libs/util';
     },
     mounted() {
         util.ajax({
-            url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/init11111', 
+            url: '/SJWCRM/logout', 
             method:'post',
             params: {
                 
             }
         }).then(res => {
-            this.total = res.data.total,
-            this.pageNum = res.data.pageNum,
-            this.pageSize = res.data.pageSize,
-            this.data1[0].totalOrder = res.data.data.totalOrder,
-            this.data1[0].totalTurnover = res.data.data.totalTurnover,
-            this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year,
-            this.data8 = res.data.data.data8,
-            this.Id = res.data.Id,
-            this.LevelArent = res.data.LevelArent
+            
+        }).catch(error => {
+            // alert('请求错误')
+        });
+
+
+        util.ajax({
+            // url: '',
+            url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/initdetail', 
+            method:'post',
+            params: {
+                
+            }
+        }).then(res => {
+            this.total = res.data.data.total,
+            this.pageNum = res.data.data.pageNum,
+            this.pageSize = res.data.data.pageSize,
+            this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder,
+            this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover,
+            this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year,
+            this.data8 = res.data.data.rows,
+            this.Id = res.data.data.Id,
+            this.LevelArent = res.data.data.LevelArent
             // if (res.data.errno === 20000) {
                 
             //     this.data8 = res.data.data8
@@ -290,10 +303,10 @@ import util from '../../libs/util';
                     organize: this.organize
                 }
             }).then(res => {
-                this.data1[0].totalOrder = res.data.data.totalOrder,
-                this.data1[0].totalTurnover = res.data.data.totalTurnover,
-                this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year,
-                this.data8 = res.data.data.data8
+                this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder,
+                this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover,
+                this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year,
+                this.data8 = res.data.data.rows
             }).catch(error => {
 
             });
@@ -311,16 +324,14 @@ import util from '../../libs/util';
                     organize: this.organize
                 }
             }).then(res => {
-                // pageNum = res.data.data.pageNum,
-                // pageSize = res.data.data.pageSize,
-                this.total = res.data.total,
-                this.totalPage = res.data.totalPage,
-                this.pageNum = res.data.pageNum,
-                this.pageSize = res.data.pageSize,
-                this.data1[0].totalOrder = res.data.data.totalOrder,
-                this.data1[0].totalTurnover = res.data.data.totalTurnover,
-                this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year,
-                this.data8 = res.data.data.data8
+                this.totalPage = res.data.data.totalPage,
+                this.total = res.data.data.total,
+                this.pageNum = res.data.data.pageNum,
+                this.pageSize = res.data.data.pageSize,
+                this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder,
+                this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover,
+                this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year,
+                this.data8 = res.data.data.rows
                 // if (res.data.errno === 20000) {
                     
                 //     this.data8 = res.data.data8

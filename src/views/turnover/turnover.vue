@@ -45,7 +45,7 @@
         </row>
         <h2 style="margin-top:40px">总数据<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
         <div style="width:100%;margin-top:10px;">
-            <Table border :columns="columns1" :data="data1"></Table>
+            <Table border :columns="columns1" :data="totalData"></Table>
         </div>
     </div>
 </div>
@@ -84,14 +84,15 @@ export default {
                 {title: '总交易额（元）',key: 'totalTurnover'},
                 {title: '总年化交易额（元）',key: 'totalTurnover_year'}
             ],
-            data1: [
+            totalData: [
                 {totalOrder: '总计',totalTurnover: '',totalTurnover_year: ''}
             ]
         }
     },
     mounted() {
         util.ajax({
-            url: '/SJWCRM/initTurnovalCount', 
+            // url: '/SJWCRM/initTurnovalCount', 
+            url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/jiaoyie',
             method:'post',
             params: {
                 userID: this.userID,
@@ -104,8 +105,8 @@ export default {
             this.lastMonthTurnovalCount = res.data.data.lastMonthTurnovalCount,
             this.totalTurnovalCount = res.data.data.totalTurnovalCount,
             this.totalYearTuranovalCount = res.data.data.totalYearTuranovalCount,
-            this.data1[0].totalTurnover = res.data.data.totalTurnover,
-            this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year,
+            this.totalData[0].totalTurnover = res.data.data.totalData.totalTurnover,
+            this.totalData[0].totalTurnover_year = res.data.data.totalData.totalTurnover_year,
             this.Id = res.data.Id
         }).catch(error => {
             
@@ -131,8 +132,8 @@ export default {
                 this.lastMonthTurnovalCount = res.data.data.lastMonthTurnovalCount,
                 this.totalTurnovalCount = res.data.data.totalTurnovalCount,
                 this.totalYearTuranovalCount = res.data.data.totalYearTuranovalCount,
-                this.data1[0].totalTurnover = res.data.data.totalTurnover,
-                this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year
+                this.totalData[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover,
+                this.totalData[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year
             }).catch(error => {
             
             });
