@@ -7,9 +7,9 @@
 <div>
     <div class="tradeVolumeSta">
         <div class="tradeV_left">
-            <div><span>{{thisMonthCommition}}</span><br/><span>本月佣金（元）</span></div>
-            <div><span>{{lastMonthCommition}}</span><br/><span>上月佣金（元）</span></div>
-            <div><span>{{totalCommition}}</span><br/><span>累计佣金（元）</span></div>
+            <div><span>{{this.thisMonthCommition}}</span><br/><span>本月佣金（元）</span></div>
+            <div><span>{{this.lastMonthCommition}}</span><br/><span>上月佣金（元）</span></div>
+            <div><span>{{this.totalCommition}}</span><br/><span>累计佣金（元）</span></div>
         </div>
     </div>
     <div style="padding:15px;background:#FFF;overflow:hidden">
@@ -43,7 +43,6 @@
         <div style="width:600px;margin-top:10px;">
             <Table border :columns="columns1" :data="data1"></Table>
         </div>
-        
 
         <div style="margin-top:40px;">
             <Col span="5"><h2>订单详情<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
@@ -89,26 +88,22 @@ export default {
             total: '',
             commitionMonth: '',
             columns1: [
-                {title: ' ',key: 'totalOrder'},
-                {title: '总交易额（元）',key: 'totalTurnover'},
-                {title: '总年化交易额（元）',key: 'totalTurnover_year'}
+                {title: '交易总额（元）',key: 'totalTurnover'},
+                {title: '年化交易总额（元）',key: 'totalTurnover_year'},
+                {title: '佣金总额（元）',key: 'totalCommition'}
             ],
             data1: [
-                {totalOrder: '总计',totalTurnover: '',totalTurnover_year: ''}
+                {totalTurnover: '',totalTurnover_year: '',totalCommition: ''}
             ],
             columns8: [
                 {"title": "序号", "type": "index", "fixed": "left", "width": 100},
-                {"title": "用户名称", "key": "show", "width": 150},
-                {"title": "订单号", "key": "weak", "width": 150},
-                {"title": "产品名称", "key": "signin", "width": 150},
-                {"title": "产品期限", "key": "click", "width": 150},
-                {"title": "交易金额", "key": "active", "width": 150},
-                {"title": "投资年华金额", "key": "day7", "width": 150},
-                {"title": "投资时间", "key": "day30", "width": 150},
-                {"title": "理财师", "key": "tomorrow", "width": 150},
-                {"title": "子分部名称", "key": "day", "width": 150},
-                {"title": "分部名称", "key": "week", "width": 150},
-                {"title": "大大俄武器", "key": "month", "width": 150}
+                {"title": "佣金月份", "key": "commitionMonth", "width": 150},
+                {"title": "交易额（元）", "key": "totalTurnover", "width": 150},
+                {"title": "年化交易额（元）", "key": "totalTurnover_year", "width": 150},
+                {"title": "佣金（元）", "key": "commition", "width": 150},
+                {"title": "理财师", "key": "userName", "width": 150},
+                {"title": "子分部名称", "key": "sonOrganize", "width": 150},
+                {"title": "分部名称", "key": "organize", "width": 150},
             ],
             data8: [
                 
@@ -117,19 +112,24 @@ export default {
     },
     mounted() {
         util.ajax({
-            url: '/SJWCRM/initCheckMonthAccount', 
+            // url: '/SJWCRM/initCheckMonthAccount', 
+            url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/meiyueduizhang',
             method:'post',
             params: {
                 userID: this.userID,
                 levelArent: this.levelArent
             }
-        }).then(res => {
-            this.pageNum = res.data.pageNum,
-            this.pageSize = res.data.pageSize,
-            this.data1[0].totalOrder = res.data.totalOrder,
-            this.data1[0].totalTurnover = res.data.data.totalTurnover,
-            this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year,
-            this.data8 = res.data.data.data8
+        }).then(res => {console.log(res.data)
+            this.thisMonthCommition = res.data.data.rows[0].thisMonthCommition,
+            this.lastMonthCommition = res.data.data.rows[0].lastMonthCommition,
+            this.totalCommition = res.data.data.rows[0].totalCommition,
+            this.commition = res.data.data.rows[0].commition,
+            this.pageNum = res.data.data.pageNum,
+            this.pageSize = res.data.data.pageSize,
+            this.data1[0].totalCommition = res.data.data.rows[0].totalCommition,
+            this.data1[0].totalTurnover = res.data.data.rows[0].totalTurnover,
+            this.data1[0].totalTurnover_year = res.data.data.rows[0].totalTurnover_year,
+            this.data8 = res.data.data.rows
         }).catch(err => {
 
         });
@@ -147,10 +147,16 @@ export default {
                     sonOrganize: this.sonOrganize
                 }
             }).then(res => {
-                this.data1[0].totalOrder = res.data.data.totalOrder,
-                this.data1[0].totalTurnover = res.data.data.totalTurnover,
-                this.data1[0].totalTurnover_year = res.data.data.totalTurnover_year,
-                this.data8 = res.data.data.data8
+                this.thisMonthCommition = res.data.data.rows[0].thisMonthCommition,
+                this.lastMonthCommition = res.data.data.rows[0].lastMonthCommition,
+                this.totalCommition = res.data.data.rows[0].totalCommition,
+                this.commition = res.data.data.rows[0].commition,
+                this.pageNum = res.data.data.pageNum,
+                this.pageSize = res.data.data.pageSize,
+                this.data1[0].totalCommition = res.data.data.rows[0].totalCommition,
+                this.data1[0].totalTurnover = res.data.data.rows[0].totalTurnover,
+                this.data1[0].totalTurnover_year = res.data.data.rows[0].totalTurnover_year,
+                this.data8 = res.data.data.rows
             }).catch(err => {
 
             });

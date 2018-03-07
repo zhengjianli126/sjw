@@ -4,19 +4,19 @@
       <row style="margin-top:10px">
       <Col span="6">
         分部名称 ：
-        <Select :model.sync="model1" span="6" style="width:200px">
+        <Select v-model="organize" span="6" style="width:200px">
           <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
         </Select>
       </Col>
       <Col span="6">
         子分部名称 ：
-        <Select :model.sync="model1" span="6" style="width:200px">
+        <Select v-model="sonOrganize" span="6" style="width:200px">
           <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
         </Select>
       </Col>
       <Col span="6">
         理财师 ：
-        <Select :model.sync="model1" span="6" style="width:200px">
+        <Select v-model="userName" span="6" style="width:200px">
             <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
         </Select>
       </Col>
@@ -79,23 +79,23 @@ import util from 'utils';
                     },
                     {
                         title: '理财师',
-                        key: 'age',
+                        key: 'userName',
                         align: 'center'
                     },
                     {
                         title: '客户数量',
-                        key: 'address',
+                        key: 'customerCount',
                         align: 'center'
                     },
                     {
                         title: '子分部名称',
                         align: 'center',
-                        key: 'address'
+                        key: 'sonOrganize'
                     },
                     {
                         title: '分布名称',
                         align: 'center',
-                        key: 'address'
+                        key: 'organize'
                     },
                     {
                         title: '操作',
@@ -126,17 +126,32 @@ import util from 'utils';
                 data1: []
             }
         },
+        mounted () {
+            this.initManage();
+        },
         methods:{
-            async  getData (){
-            
+            initManage() {
+                util.ajax({
+                    // url: '/SJWCRM/InitAuthoriMess', 
+                    url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/licaishi',
+                    method:'post',
+                    params: {
+                        
+                    }
+                }).then(res => {
+                    this.data1 = res.data.data.rows;
+                }).catch(err => {
+
+                });
+            },
+            async getData (){
               // let result = await util.ajax.get('/list');
                let result = await util.ajax.post('/listp',{a:"b"});
                if(result.data.success){
-                    this.data1 = result.data.data;
+                    this.data1 = result.data.data.rows;
                }else {
 
                }
-              
             }       
         },
         created(){
