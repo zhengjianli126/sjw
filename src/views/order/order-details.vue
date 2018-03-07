@@ -16,19 +16,19 @@
     <row style="margin-top:10px">
       <i-col span="6">
         分部名称 ：
-        <i-select v-model="organize" span="6" style="width:200px">
+        <i-select :disabled="organizeDisabled" v-model="organize" span="6" style="width:200px">
           <i-option v-for="item in cityList1" :value="item.value">{{ item.label }}</i-option>
         </i-select>
       </i-col>
       <i-col span="6">
         子分部名称 ：
-        <i-select v-model="sonOrganize" span="6" style="width:200px">
+        <i-select :disabled="sonOrganizeDisabled" v-model="sonOrganize" span="6" style="width:200px">
           <i-option v-for="item in cityList2" :value="item.value">{{ item.label }}</i-option>
         </i-select>
       </i-col>
       <i-col span="6">
         理财师 ：
-        <i-select v-model="userName" span="6" style="width:200px">
+        <i-select :disabled="userNameDisabled" v-model="userName" span="6" style="width:200px">
             <i-option v-for="item in cityList3" :value="item.value">{{ item.label }}</i-option>
         </i-select>
       </i-col>
@@ -40,26 +40,19 @@
     </div>
     <div  style="margin-top:40px;">
       <Col span="5"><h2>订单详情<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
-      <Col span="3"><Button type="primary" icon="ios-cloud-download" @click="exportData(1)">导出</Button></Col>
+      <Col span="3"><Button type="primary" icon="ios-cloud-download" @click="exportData(3)">导出</Button></Col>
     </div>
     <div style="clear:both;padding-top:20px;">
       <Table border :columns="columns8" :data="data8" size="small" ref="table"></Table>
     </div>
     <div style="margin-top:10px;float:right">
-      <!-- <Page :total="40" size="small" show-elevator show-sizer></Page> -->
-      <Page :total="total"
-            :page-size="pageSize"
-            :current="pageNum"
-            size="small"
-            on-change="getOrderList"
-            show-total
-            show-sizer>
-      </Page>
+      <Page :total="total" :page-size="pageSize" show-total show-elevator @on-change="changepage"></Page>
     </div>
   </div>
 </template>
 <script>
 import util from '../../libs/util';
+import Cookies from 'js-cookie';
     export default {
         data () {
             return {
@@ -69,9 +62,11 @@ import util from '../../libs/util';
                 sonOrganize: '',
                 userName: '',
                 total: '',
-                totalPage: '',
                 pageNum: '',
                 pageSize: '',
+                organizeDisabled: false,
+                sonOrganizeDisabled: false,
+                userNameDisabled: false,
                 cityList1: [
                     {
                         value: 'beijing',
@@ -242,20 +237,7 @@ import util from '../../libs/util';
                 ]
         }
     },
-    mounted() {
-        util.ajax({
-            url: '/SJWCRM/logout', 
-            method:'post',
-            params: {
-                
-            }
-        }).then(res => {
-            
-        }).catch(error => {
-            // alert('请求错误')
-        });
-
-
+    mounted() {console.log(Cookies.get('levelArent'))
         util.ajax({
             // url: '',
             url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/initdetail', 
@@ -272,30 +254,54 @@ import util from '../../libs/util';
             this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year,
             this.data8 = res.data.data.rows,
             this.Id = res.data.data.Id,
-            this.LevelArent = res.data.data.LevelArent
-            // if (res.data.errno === 20000) {
-                
-            //     this.data8 = res.data.data8
-            // }
-            // else {
+            this.LevelArent = res.data.data.LevelArent,
 
-            //     alert('请求错误')
-            // }
+            // 保存一份请求的总数据
+            this.detailtotal = res.data.data.total,
+            this.detailpageNum = res.data.data.pageNum,
+            this.detailpageSize = res.data.data.pageSize,
+            this.detailData = res.data.data.rows;
+            // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
+            this.handleList();
+            
+
         }).catch(error => {
             // alert('请求错误')
         });
+
     },
-    computed: {
-        
-    },
+    created(){
+
+        },
     methods: {
+            handleList(){
+                this.total = this.total ;
+                this.pageSize = this.pageSize;
+                this.data8= this.data8;
+                if(this.total  < this.pageSize){
+                    this.data8 = this.data8;
+                }else{
+                    this.data8 = this.data8.slice(0,this.pageSize);
+                }
+            },
+            changepage(index){
+                this.detailtotal = this.detailtotal,
+                this.detailpageNum = this.detailpageNum,
+                this.detailpageSize = this.detailpageSize,
+                this.detailData = this.detailData;
+                
+                var _start = ( index - 1 ) * this.detailpageSize;
+                var _end = index * this.detailpageSize;
+                this.data8 = this.detailData.slice(_start,_end);
+            },
+
         searchData() {
             util.ajax({
                 url: '/SJWCRM/searchOrderDetails',
                 method: 'post',
                 params: {
-                    StarTime: this.StarTime && this.StarTime.getTime()/1000,
-                    EndTime: this.EndTime && this.EndTime.getTime()/1000,
+                    StarTime: this.StarTime,
+                    EndTime: this.EndTime,
                     Id: this.Id,
                     LevelArent: this.LevelArent,
                     userName: this.userName,
@@ -306,44 +312,39 @@ import util from '../../libs/util';
                 this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder,
                 this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover,
                 this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year,
-                this.data8 = res.data.data.rows
+                this.data8 = res.data.data.rows,
+
+                this.handleList();
             }).catch(error => {
 
             });
         },
-        getOrderList() {
-            util.ajax({
-                url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/init11111', 
-                method:'post',
-                params: {
-                    StarTime: this.StarTime && this.StarTime.getTime()/1000,
-                    EndTime: this.EndTime && this.EndTime.getTime()/1000,
-                    Id: '123',
-                    userName: this.userName,
-                    sonOrganize: this.sonOrganize,
-                    organize: this.organize
-                }
-            }).then(res => {
-                this.totalPage = res.data.data.totalPage,
-                this.total = res.data.data.total,
-                this.pageNum = res.data.data.pageNum,
-                this.pageSize = res.data.data.pageSize,
-                this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder,
-                this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover,
-                this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year,
-                this.data8 = res.data.data.rows
-                // if (res.data.errno === 20000) {
-                    
-                //     this.data8 = res.data.data8
-                // }
-                // else {
-
-                //     alert('请求错误')
-                // }
-            }).catch(error => {
-                // alert('请求错误')
-            });
-        },
+        // getOrderList(p) {
+        //     util.ajax({
+        //         url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/init11111', 
+        //         method:'post',
+        //         params: {
+        //             StarTime: this.StarTime,
+        //             EndTime: this.EndTime,
+        //             Id: '123',
+        //             userName: this.userName,
+        //             sonOrganize: this.sonOrganize,
+        //             organize: this.organize
+        //         }
+        //     }).then(res => {
+        //         this.totalPage = res.data.data.totalPage,
+        //         this.total = res.data.data.total,
+        //         this.pageNum = res.data.data.pageNum,
+        //         this.pageSize = res.data.data.pageSize,
+        //         this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder,
+        //         this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover,
+        //         this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year,
+        //         this.data8 = res.data.data.rows
+                
+        //     }).catch(error => {
+        //         // alert('请求错误')
+        //     });
+        // },
         exportData (type) {
             if (type === 1) {
                 this.$refs.table.exportCsv({
@@ -356,9 +357,9 @@ import util from '../../libs/util';
                 });
             } else if (type === 3) {
                 this.$refs.table.exportCsv({
-                    filename: 'Custom data',
-                    columns: this.columns8.filter((col, index) => index < 4),
-                    data: this.data8.filter((data, index) => index < 4)
+                    filename: '订单详情',
+                    columns: this.columns8,
+                    data: this.detailData
                 });
             }
         }

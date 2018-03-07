@@ -118,8 +118,8 @@ export default {
                 url: '/SJWCRM/getTuranovalCount',
                 method: 'post',
                 params: {
-                    StarTime: this.StarTime && this.StarTime.getTime()/1000,
-                    EndTime: this.EndTime && this.EndTime.getTime()/1000,
+                    StarTime: this.StarTime,
+                    EndTime: this.EndTime,
                     Id: this.Id,
                     userName: this.userName,
                     organize: this.organize,

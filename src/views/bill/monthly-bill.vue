@@ -15,25 +15,25 @@
     <div style="padding:15px;background:#FFF;overflow:hidden">
         <row style="margin-top:10px">
             <Col span="8">
-                选择月份 ：<Date-picker :model.sync="commitionMonth" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
+                选择月份 ：<Date-picker v-model="DateTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
             </Col>
         </row>
         <row style="margin-top:10px">
             <Col span="6">
                 分部名称 ：
-                <Select :model.sync="organize" span="6" style="width:200px">
+                <Select v-model="organize" span="6" style="width:200px">
                     <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
             <Col span="6">
                 子分部名称 ：
-                <Select :model.sync="sonOrganize" span="6" style="width:200px">
+                <Select v-model="sonOrganize" span="6" style="width:200px">
                     <Option v-for="item in cityList2" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
             <Col span="6">
                 理财师 ：
-                <Select :model.sync="userName" span="6" style="width:200px">
+                <Select :v-model="userName" span="6" style="width:200px">
                     <Option v-for="item in cityList3" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
@@ -46,17 +46,14 @@
 
         <div style="margin-top:40px;">
             <Col span="5"><h2>订单详情<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
-            <Col span="3"><Button type="primary" icon="ios-cloud-download" @click="exportData(1)">导出</Button></Col>
+            <Col span="3"><Button type="primary" icon="ios-cloud-download" @click="exportData(3)">导出</Button></Col>
         </div>
         <div style="clear:both;padding-top:20px;">
             <Table border :columns="columns8" :data="data8" size="small" ref="table"></Table>
         </div>
         <div style="margin-top:10px;float:right">
-            <Page :total="40" size="small" show-elevator show-sizer></Page>
-            <!-- <Page :total="total" :page-size="pageSize"
-            :current="pageNum" size="small" show-total></Page> -->
+            <Page :total="total" :page-size="pageSize" show-total show-elevator @on-change="changepage"></Page>
         </div>
-        <div style="margin-top:10px;float:right;line-height:22px;">显示？？条到？？条记录，总共？？条记录。</div>
     </div>
 </div>
 </template>
@@ -83,10 +80,9 @@ export default {
             organize: '',
             sonOrganize: '',
             userName: '',
-            pageNum: '',
             pageSize: '',
             total: '',
-            commitionMonth: '',
+            DateTime: '',
             columns1: [
                 {title: '交易总额（元）',key: 'totalTurnover'},
                 {title: '年化交易总额（元）',key: 'totalTurnover_year'},
@@ -112,35 +108,63 @@ export default {
     },
     mounted() {
         util.ajax({
-            // url: '/SJWCRM/initCheckMonthAccount', 
-            url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/meiyueduizhang',
+            url: '/SJWCRM/initCheckMonthAccount', 
+            // url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/meiyueduizhang',
             method:'post',
             params: {
-                userID: this.userID,
-                levelArent: this.levelArent
+                
             }
-        }).then(res => {console.log(res.data)
+        }).then(res => {
+            this.total = res.data.data.total,
+            this.pageNum = res.data.data.pageNum,
+            this.pageSize = res.data.data.pageSize,
             this.thisMonthCommition = res.data.data.rows[0].thisMonthCommition,
             this.lastMonthCommition = res.data.data.rows[0].lastMonthCommition,
             this.totalCommition = res.data.data.rows[0].totalCommition,
             this.commition = res.data.data.rows[0].commition,
-            this.pageNum = res.data.data.pageNum,
-            this.pageSize = res.data.data.pageSize,
             this.data1[0].totalCommition = res.data.data.rows[0].totalCommition,
             this.data1[0].totalTurnover = res.data.data.rows[0].totalTurnover,
             this.data1[0].totalTurnover_year = res.data.data.rows[0].totalTurnover_year,
-            this.data8 = res.data.data.rows
+            this.data8 = res.data.data.rows,
+
+            // 保存一份请求的总数据
+            this.detailtotal = res.data.data.total,
+            this.detailpageNum = res.data.data.pageNum,
+            this.detailpageSize = res.data.data.pageSize,
+            this.detailData = res.data.data.rows;
+            // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
+            this.handleList();
         }).catch(err => {
 
         });
     },
     methods: {
+        handleList(){
+            this.total = this.total ;
+            this.pageSize = this.pageSize;
+            this.data8= this.data8;
+            if(this.total  < this.pageSize){
+                this.data8 = this.data8;
+            }else{
+                this.data8 = this.data8.slice(0,this.pageSize);
+            }
+        },
+        changepage(index){
+            this.detailtotal = this.detailtotal,
+            this.detailpageNum = this.detailpageNum,
+            this.detailpageSize = this.detailpageSize,
+            this.detailData = this.detailData;
+            
+            var _start = ( index - 1 ) * this.detailpageSize;
+            var _end = index * this.detailpageSize;
+            this.data8 = this.detailData.slice(_start,_end);
+        },
         searchBtn() {
             util.ajax({
                 url: '/SJWCRM/getCheckMonthAccount',
                 method: 'post',
                 params: {
-                    commitionMonth: this.commitionMonth && this.commitionMonth.getTime()/1000,
+                    DateTime: this.DateTime,
                     Id: '123',
                     userName: this.userName,
                     organize: this.organize,
@@ -173,7 +197,7 @@ export default {
                 });
             } else if (type === 3) {
                 this.$refs.table.exportCsv({
-                    filename: 'Custom data',
+                    filename: '订单详情',
                     columns: this.columns8.filter((col, index) => index < 4),
                     data: this.data8.filter((data, index) => index < 4)
                 });
