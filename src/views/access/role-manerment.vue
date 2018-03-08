@@ -28,7 +28,7 @@
                       <div><span style="display:inline-block;min-width:20px">12</span>条到<span style="display:inline-block;min-width:20px">56</span>条记录，总共<span style="display:inline-block;min-width:20px">121</span>条记录。</div>
                  </Col>
                 <Col span="12" align="center">
-                    <Page :total="40" size="small" show-elevator show-sizer></Page>
+                    <Page :total="5" size="small" show-elevator show-sizer></Page>
                 </Col>
             </Row>
        </div> 
@@ -69,7 +69,21 @@
     </div>
 </template>
 <script>
+import util from '@/libs/util';
     export default {
+        created:function(){
+        // 请求数据
+            util.ajax('/SJWCRM/InitRoleMess', {
+                    method: 'post'
+                })
+                .then(res => {
+                    this.tableData3 = res.data.data.rows;
+                })
+                .catch(function(error) {
+                    console.log(error);
+    
+                });
+        },
         data () {
             return {
                 ssJsmc:'',
@@ -77,20 +91,7 @@
                 xzbz:'',
                 modal1:false,//新增
                 modal2: false,//删除弹框
-                tableData3: [//表格
-                    {
-                        name: 'John Brown',
-                        age: 18,
-                        address: 'New York No. 1 Lake Park',
-                        date: '2016-10-03'
-                    },
-                    {
-                        name: 'Jim Green',
-                        age: 24,
-                        address: 'London No. 1 Lake Park',
-                        date: '2016-10-01'
-                    },
-                ],
+                tableData3: [],
                 treeData: [
                     {
                         title: 'parent',
@@ -170,20 +171,20 @@
                 }
                 columns.push({
                     title: '角色名称',
-                    key: 'date',
+                    key: 'roleName',
                 });
                    columns.push({
                     title: '创建时间',
-                    key: 'date',
+                    key: 'createTime',
                 
                 });
                 columns.push({
                     title: '修改时间',
-                    key: 'name'
+                    key: 'updateTime'
                 });
                 columns.push({
                     title: '备注',
-                    key: 'name'
+                    key: 'remarks'
                 });
                 this.isloading = false;
                 return columns;

@@ -120,7 +120,7 @@ export const appRouter = [
     {
         path: '/access',
         icon: 'key',
-        title: '权限管理',
+        title: '系统管理',
         name: 'access',
         component: Main,
         children: [
