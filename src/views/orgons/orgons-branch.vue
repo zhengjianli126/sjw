@@ -261,21 +261,10 @@ import util from 'utils';
                 }).catch(err => {
 
                 });
-            },
-            async  getData (){
-              // let result = await util.ajax.get('/list');
-               let result = await util.ajax.post('/listp',{a:"b"});
-               if(result.data.success){
-                    this.data1 = result.data.data;
-                    this.data2 = result.data.data;
-               }else {
-
-               }
-              
-            }       
+            }      
         },
         created(){
-            this.getData();
+            
         }
     }
 </script>

@@ -21,19 +21,19 @@
         <row style="margin-top:10px">
             <Col span="6">
                 分部名称 ：
-                <Select v-model="organize" span="6" style="width:200px">
+                <Select :disabled="organizeDisabled" v-model="organize" span="6" style="width:200px">
                     <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
             <Col span="6">
                 子分部名称 ：
-                <Select v-model="sonOrganize" span="6" style="width:200px">
+                <Select :disabled="sonOrganizeDisabled" v-model="sonOrganize" span="6" style="width:200px">
                     <Option v-for="item in cityList2" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
             <Col span="6">
                 理财师 ：
-                <Select :v-model="userName" span="6" style="width:200px">
+                <Select :disabled="userNameDisabled" v-model="userName" span="6" style="width:200px">
                     <Option v-for="item in cityList3" :value="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
@@ -59,9 +59,19 @@
 </template>
 <script>
 import util from '../../libs/util';
+import Cookies from 'js-cookie';
 export default {
     data () {
         return {
+            organize: '',
+            sonOrganize: '',
+            userName: '',
+            pageSize: '',
+            total: '',
+            DateTime: '',
+            organizeDisabled: false,
+            sonOrganizeDisabled: false,
+            userNameDisabled: false,
             cityList: [
                 {value: 'fenbu1',label: '分部1区'},
                 {value: 'fenbu2',label: '分部2区'},
@@ -77,12 +87,6 @@ export default {
                 {value: 'licaishi2',label: '理财师2号'},
                 {value: 'licaishi3',label: '理财师3号'}
             ],
-            organize: '',
-            sonOrganize: '',
-            userName: '',
-            pageSize: '',
-            total: '',
-            DateTime: '',
             columns1: [
                 {title: '交易总额（元）',key: 'totalTurnover'},
                 {title: '年化交易总额（元）',key: 'totalTurnover_year'},
