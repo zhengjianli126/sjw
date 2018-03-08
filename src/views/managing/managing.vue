@@ -4,21 +4,21 @@
       <row style="margin-top:10px">
       <Col span="6">
         分部名称 ：
-        <Select :disabled="organizeDisabled" v-model="organize" span="6" style="width:200px">
-          <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
-        </Select>
+        <i-select  @on-change="changeName1"  :disabled="organizeDisabled" :model.sync="organize" span="6" style="width:200px">
+            <i-option v-for="item in name1" :value="item.id+-+item.levelArent">{{ item.organizeName }}</i-option>
+        </i-select>
       </Col>
       <Col span="6">
         子分部名称 ：
-        <Select :disabled="sonOrganizeDisabled" v-model="sonOrganize" span="6" style="width:200px">
-          <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
-        </Select>
+        <i-select @on-change="changeName2" :disabled="sonOrganizeDisabled" :model.sync="sonOrganize" span="6" style="width:200px">
+            <i-option v-for="item in name2" :value="item.id+-+item.levelArent">{{ item.organizeName }}</i-option>
+        </i-select>
       </Col>
       <Col span="6">
         理财师 ：
-        <Select :disabled="userNameDisabled" v-model="userName" span="6" style="width:200px">
-            <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
-        </Select>
+        <i-select @on-change="changeName3" :disabled="userNameDisabled" :model.sync="userName" span="6" style="width:200px">
+            <i-option v-for="item in name3" :value="item.id+-+item.levelArent">{{ item.organizeName }}</i-option>
+        </i-select>
       </Col>
       <Button type="primary" icon="ios-search" @click="searchData()">搜索</Button>
     </row>
@@ -34,184 +34,250 @@
     </div>    
 </template>
 <script>
-import util from 'utils';
-import Cookies from 'js-cookie';
-    export default {
-        data () {
-            return {
-                total: '',
-                pageNum: '',
-                pageSize: '',
-                organize: '',
-                sonOrganize: '',
-                userName: '',
-                organizeDisabled: false,
-                sonOrganizeDisabled: false,
-                userNameDisabled: false,
-                cityList: [
-                    {
-                        value: 'beijing',
-                        label: '北京市'
-                    },
-                    {
-                        value: 'shanghai',
-                        label: '上海市'
-                    },
-                    {
-                        value: 'shenzhen',
-                        label: '深圳市'
-                    },
-                    {
-                        value: 'hangzhou',
-                        label: '杭州市'
-                    },
-                    {
-                        value: 'nanjing',
-                        label: '南京市'
-                    },
-                    {
-                        value: 'chongqing',
-                        label: '重庆市'
-                    }
-                ],
-                columns1: [
-                     {
-                        type: 'selection',
-                        width: 60,
-                        align: 'center'
-                    },
-                    {
-                        title: "序号",
-                        type: 'index',
-                        width: 60,
-                        align: 'center'
-                    },
-                    {
-                        title: '理财师',
-                        key: 'userName',
-                        align: 'center'
-                    },
-                    {
-                        title: '客户数量',
-                        key: 'customerCount',
-                        align: 'center'
-                    },
-                    {
-                        title: '子分部名称',
-                        align: 'center',
-                        key: 'sonOrganize'
-                    },
-                    {
-                        title: '分布名称',
-                        align: 'center',
-                        key: 'organize'
-                    },
-                    {
-                        title: '操作',
-                        key: 'action',
-                        width: 150,
-                        align: 'center',
-                        render: (h, params) => {
-                            return h('div', [
-                                h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.show(params.index)
-                                        }
-                                    }
-                                }, '绑定')
-                            ]);
-                        }
-                    }
-
-                ],
-                data8: []
-            }
+import util from "utils";
+import Cookies from "js-cookie";
+export default {
+  data() {
+    return {
+      total: "",
+      pageNum: "",
+      pageSize: "",
+      organize: "",
+      sonOrganize: "",
+      userName: "",
+      organizeDisabled: false,
+      sonOrganizeDisabled: false,
+      userNameDisabled: false,
+      name1: [],
+      name2: [],
+      name3: [],
+      organizeSelect1: "",
+      organizeSelect2: "",
+      organizeSelect3: "",
+      detailtotal: "",
+      detailpageNum: "",
+      detailpageSize: "",
+      detailData: "",
+      columns1: [
+        {
+          type: "selection",
+          width: 60,
+          align: "center"
         },
-        mounted () {
-            util.ajax({
-                // url: '/SJWCRM/InitAuthoriMess', 
-                url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/licaishi',
-                method:'post',
-                params: {
-                    
-                }
-            }).then(res => {
-                this.total = res.data.data.total,
-                this.pageNum = res.data.data.pageNum,
-                this.pageSize = res.data.data.pageSize,
-                this.data8 = res.data.data.rows;
-
-                // 保存一份请求的总数据
-                this.detailtotal = res.data.data.total,
-                this.detailpageNum = res.data.data.pageNum,
-                this.detailpageSize = res.data.data.pageSize,
-                this.detailData = res.data.data.rows;
-                // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
-                this.handleList();
-            }).catch(err => {
-
-            });
-            
+        {
+          title: "序号",
+          type: "index",
+          width: 60,
+          align: "center"
         },
-        methods:{
-            handleList(){
-                this.total = this.total ;
-                this.pageSize = this.pageSize;
-                this.data8= this.data8;
-                if(this.total  < this.pageSize){
-                    this.data8 = this.data8;
-                }else{
-                    this.data8 = this.data8.slice(0,this.pageSize);
-                }
-            },
-            changepage(index){
-                this.detailtotal = this.detailtotal,
-                this.detailpageNum = this.detailpageNum,
-                this.detailpageSize = this.detailpageSize,
-                this.detailData = this.detailData;
-                
-                var _start = ( index - 1 ) * this.detailpageSize;
-                var _end = index * this.detailpageSize;
-                this.data8 = this.detailData.slice(_start,_end);
-            },
-            searchData() {
-                util.ajax({
-                    url: '/SJWCRM/searchOrderDetails',
-                    method: 'post',
-                    params: {
-                        LevelArent: Cookies.get('levelArent'),
-                        userName: this.userName,
-                        sonOrganize: this.sonOrganize,
-                        organize: this.organize
+        {
+          title: "理财师",
+          key: "userName",
+          align: "center"
+        },
+        {
+          title: "客户数量",
+          key: "customerCount",
+          align: "center"
+        },
+        {
+          title: "子分部名称",
+          align: "center",
+          key: "sonOrganize"
+        },
+        {
+          title: "分布名称",
+          align: "center",
+          key: "organize"
+        },
+        {
+          title: "操作",
+          key: "action",
+          width: 150,
+          align: "center",
+          render: (h, params) => {
+            return h("div", [
+              h(
+                "Button",
+                {
+                  props: {
+                    type: "primary",
+                    size: "small"
+                  },
+                  style: {
+                    marginRight: "5px"
+                  },
+                  on: {
+                    click: () => {
+                      this.show(params.index);
                     }
-                }).then(res => {
-                    this.data8 = res.data.data.rows,
-
-                    this.handleList();
-                }).catch(error => {
-
-                });
-            }
-            // async getData (){
-            //   // let result = await util.ajax.get('/list');
-            //    let result = await util.ajax.post('/listp',{a:"b"});
-            //    if(result.data.success){
-            //         this.data8 = result.data.data.rows;
-            //    }else {
-
-            //    }
-            // }       
-        },
-        created(){
-            // this.getData();
+                  }
+                },
+                "绑定"
+              )
+            ]);
+          }
         }
+      ],
+      data8: []
+    };
+  },
+  mounted() {
+    var nowDate = util.formatDate(new Date());
+    util
+      .ajax({
+        url: "/SJWCRM/InitAuthoriMess",
+        method: "post",
+        params: {
+          date: nowDate
+        }
+      })
+      .then(res => {
+        this.total = res.data.data.total;
+        this.pageNum = res.data.data.pageNum;
+        this.pageSize = res.data.data.pageSize;
+        this.data8 = res.data.data.rows;
+
+        // 保存一份请求的总数据
+        this.detailtotal = res.data.data.total;
+        this.detailpageNum = res.data.data.pageNum;
+        this.detailpageSize = res.data.data.pageSize;
+        this.detailData = res.data.data.rows;
+        // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
+        this.handleList();
+      })
+      .catch(err => {});
+  },
+  created() {
+    if (Cookies.get("levelArent") == 1) {
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {}
+        })
+        .then(res => {
+          this.name1 = res.data.data;
+        });
     }
+    if (Cookies.get("levelArent") == 2) {
+      this.organizeDisabled = true;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {}
+        })
+        .then(res => {
+          this.name2 = res.data.data;
+        });
+    }
+    if (Cookies.get("levelArent") == 3) {
+      this.organizeDisabled = true;
+      this.sonOrganizeDisabled = true;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {}
+        })
+        .then(res => {
+          this.name3 = res.data.data;
+        });
+    }
+    if (Cookies.get("levelArent") == 4) {
+      this.organizeDisabled = true;
+      this.sonOrganizeDisabled = true;
+      this.userNameDisabled = true;
+    }
+  },
+  methods: {
+    handleList() {
+      if (this.total < this.pageSize) {
+        this.data8 = this.detailData;
+      } else {
+        this.data8 = this.detailData.slice(0, this.pageSize);
+      }
+    },
+    changepage(index) {
+      this.detailData = this.detailData;
+
+      var _start = (index - 1) * this.detailpageSize;
+      var _end = index * this.detailpageSize;
+      this.data8 = this.detailData.slice(_start, _end);
+    },
+    changeName1(value) {
+      this.organizeSelect1 = value;
+      var changeValue1 = value;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {
+            "Campus.organizeId": changeValue1.split("-")[0],
+            "Campus.levelArent": changeValue1.split("-")[1]
+          }
+        })
+        .then(res => {
+          this.name2 = res.data.data;
+        });
+    },
+    changeName2(value) {
+      this.organizeSelect2 = value;
+      var changeValue2 = value;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {
+            "CampusSon.organizeId": changeValue2.split("-")[0],
+            "CampusSon.levelArent": changeValue2.split("-")[1]
+          }
+        })
+        .then(res => {
+          this.name3 = res.data.data;
+        });
+    },
+    changeName3(value) {
+      this.organizeSelect3 = value;
+      var changeValue3 = value;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {
+            "Accountant.organizeId": changeValue3.split("-")[0],
+            "Accountant.levelArent": changeValue3.split("-")[1]
+          }
+        })
+        .then(res => {});
+    },
+    searchData() {
+      util
+        .ajax({
+          url: "/SJWCRM/searchOrderDetails",
+          method: "post",
+          params: {
+            "Campus.organizeId": this.organizeSelect1.split("-")[0],
+            "Campus.levelArent": this.organizeSelect1.split("-")[1],
+            "CampusSon.organizeId": this.organizeSelect2.split("-")[0],
+            "CampusSon.levelArent": this.organizeSelect2.split("-")[1],
+            "Accountant.organizeId": this.organizeSelect3.split("-")[0],
+            "Accountant.levelArent": this.organizeSelect3.split("-")[1]
+          }
+        })
+        .then(res => {
+          this.data8 = res.data.data.rows;
+
+          this.detailtotal = res.data.data.total;
+          this.detailpageNum = res.data.data.pageNum;
+          this.detailpageSize = res.data.data.pageSize;
+          this.detailData = res.data.data.rows;
+
+          this.handleList();
+        })
+        .catch(error => {});
+    }
+  }
+};
 </script>

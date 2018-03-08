@@ -1,5 +1,5 @@
 <style lang="less">
-    @import './turnover.less';
+@import "./turnover.less";
 </style>
 <template>
 <div>
@@ -25,21 +25,21 @@
         <row style="margin-top:10px">
             <Col span="6">
                 分部名称 ：
-                <Select :disabled="organizeDisabled" v-model="organize" span="6" style="width:200px">
-                    <Option v-for="item in cityList" :value="item.value">{{ item.label }}</Option>
-                </Select>
+                <i-select  @on-change="changeName1"  :disabled="organizeDisabled" :model.sync="organize" span="6" style="width:200px">
+                    <i-option v-for="item in name1" :value="item.id+-+item.levelArent">{{ item.organizeName }}</i-option>
+                </i-select>
             </Col>
             <Col span="6">
                 子分部名称 ：
-                <Select :disabled="sonOrganizeDisabled" v-model="sonOrganize" span="6" style="width:200px">
-                    <Option v-for="item in cityList2" :value="item.value">{{ item.label }}</Option>
-                </Select>
+                <i-select @on-change="changeName2" :disabled="sonOrganizeDisabled" :model.sync="sonOrganize" span="6" style="width:200px">
+                    <i-option v-for="item in name2" :value="item.id+-+item.levelArent">{{ item.organizeName }}</i-option>
+                </i-select>
             </Col>
             <Col span="6">
                 理财师 ：
-                <Select :disabled="userNameDisabled" v-model="userName" span="6" style="width:200px">
-                    <Option v-for="item in cityList3" :value="item.value">{{ item.label }}</Option>
-                </Select>
+                <i-select @on-change="changeName3" :disabled="userNameDisabled" :model.sync="userName" span="6" style="width:200px">
+                    <i-option v-for="item in name3" :value="item.id+-+item.levelArent">{{ item.organizeName }}</i-option>
+                </i-select>
             </Col>
             <Button type="primary" @click="searchBtn" icon="ios-search">搜索</Button>
         </row>
@@ -51,97 +51,180 @@
 </div>
 </template>
 <script>
-import util from '../../libs/util';
-import Cookies from 'js-cookie';
+import util from "../../libs/util";
+import Cookies from "js-cookie";
 export default {
-    data () {
-        return {
-            StarTime: '',
-            EndTime: '',
-            organize: '',
-            sonOrganize: '',
-            userName: '',
-            todayTurnovalCount: '',
-            organizeDisabled: false,
-            sonOrganizeDisabled: false,
-            userNameDisabled: false,
-            cityList: [
-                {value: 'fenbu1',label: '分部1区'},
-                {value: 'fenbu2',label: '分部2区'},
-                {value: 'fenbu3',label: '分部3区'}
-            ],
-            cityList2: [
-                {value: 'zifenbu1',label: '子分部1区'},
-                {value: 'zifenbu2',label: '子分部2区'},
-                {value: 'zifenbu3',label: '子分部3区'}
-            ],
-            cityList3: [
-                {value: 'licaishi1',label: '理财师1号'},
-                {value: 'licaishi2',label: '理财师2号'},
-                {value: 'licaishi3',label: '理财师3号'}
-            ],
-            model1: '',
-            model2: '',
-            model3: '',
-            columns1: [
-                {title: ' ',key: 'totalOrder'},
-                {title: '总交易额（元）',key: 'totalTurnover'},
-                {title: '总年化交易额（元）',key: 'totalTurnover_year'}
-            ],
-            totalData: [
-                {totalOrder: '总计',totalTurnover: '',totalTurnover_year: ''}
-            ]
+  data() {
+    return {
+      StarTime: "",
+      EndTime: "",
+      organize: "",
+      sonOrganize: "",
+      userName: "",
+      todayTurnovalCount: "",
+      organizeDisabled: false,
+      sonOrganizeDisabled: false,
+      userNameDisabled: false,
+      name1: [],
+      name2: [],
+      name3: [],
+      organizeSelect1: "",
+      organizeSelect2: "",
+      organizeSelect3: "",
+      columns1: [
+        { title: " ", key: "totalOrder" },
+        { title: "总交易额（元）", key: "totalTurnover" },
+        { title: "总年化交易额（元）", key: "totalTurnover_year" }
+      ],
+      totalData: [
+        { totalOrder: "总计", totalTurnover: "", totalTurnover_year: "" }
+      ]
+    };
+  },
+  mounted() {
+    var nowDate = util.formatDate(new Date());
+    util
+      .ajax({
+        // url: '/SJWCRM/initTurnovalCount',
+        url: "/SJWCRM/initTurnovalCount",
+        method: "post",
+        params: {
+          date: nowDate
         }
-    },
-    mounted() {
-        util.ajax({
-            // url: '/SJWCRM/initTurnovalCount', 
-            url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/jiaoyie',
-            method:'post',
-            params: {
-                userID: this.userID,
-                levelArent: this.levelArent
-            }
-        }).then(res => {
-            this.todayTurnovalCount = res.data.data.todayTurnovalCount,
-            this.yestodayTurnovalCount = res.data.data.yestodayTurnovalCount,
-            this.thisMonthTurnovalCount = res.data.data.thisMonthTurnovalCount,
-            this.lastMonthTurnovalCount = res.data.data.lastMonthTurnovalCount,
-            this.totalTurnovalCount = res.data.data.totalTurnovalCount,
-            this.totalYearTuranovalCount = res.data.data.totalYearTuranovalCount,
-            this.totalData[0].totalTurnover = res.data.data.totalData.totalTurnover,
-            this.totalData[0].totalTurnover_year = res.data.data.totalData.totalTurnover_year,
-            this.Id = res.data.Id
-        }).catch(error => {
-            
+      })
+      .then(res => {
+        this.todayTurnovalCount = res.data.data.todayTurnovalCount;
+        this.yestodayTurnovalCount = res.data.data.yestodayTurnovalCount;
+        this.thisMonthTurnovalCount = res.data.data.thisMonthTurnovalCount;
+        this.lastMonthTurnovalCount = res.data.data.lastMonthTurnovalCount;
+        this.totalTurnovalCount = res.data.data.totalTurnovalCount;
+        this.totalYearTuranovalCount = res.data.data.totalYearTuranovalCount;
+        this.totalData[0].totalTurnover = res.data.data.totalData.totalTurnover;
+        this.totalData[0].totalTurnover_year =
+          res.data.data.totalData.totalTurnover_year;
+      })
+      .catch(error => {});
+  },
+  created() {
+    if (Cookies.get("levelArent") == 1) {
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {}
+        })
+        .then(res => {
+          this.name1 = res.data.data;
+        });
+    }
+    if (Cookies.get("levelArent") == 2) {
+      this.organizeDisabled = true;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {}
+        })
+        .then(res => {
+          this.name2 = res.data.data;
+        });
+    }
+    if (Cookies.get("levelArent") == 3) {
+      this.organizeDisabled = true;
+      this.sonOrganizeDisabled = true;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {}
+        })
+        .then(res => {
+          this.name3 = res.data.data;
+        });
+    }
+    if (Cookies.get("levelArent") == 4) {
+      this.organizeDisabled = true;
+      this.sonOrganizeDisabled = true;
+      this.userNameDisabled = true;
+    }
+  },
+  methods: {
+    changeName1(value) {
+      this.organizeSelect1 = value;
+      var changeValue1 = value;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {
+            "Campus.organizeId": changeValue1.split("-")[0],
+            "Campus.levelArent": changeValue1.split("-")[1]
+          }
+        })
+        .then(res => {
+          this.name2 = res.data.data;
         });
     },
-    methods: {
-        searchBtn() {
-            util.ajax({
-                url: '/SJWCRM/getTuranovalCount',
-                method: 'post',
-                params: {
-                    StarTime: this.StarTime,
-                    EndTime: this.EndTime,
-                    Id: this.Id,
-                    userName: this.userName,
-                    organize: this.organize,
-                    sonOrganize: this.sonOrganize
-                }
-            }).then(res => {
-                this.todayTurnovalCount = res.data.data.todayTurnovalCount,
-                this.yestodayTurnovalCount = res.data.data.yestodayTurnovalCount,
-                this.thisMonthTurnovalCount = res.data.data.thisMonthTurnovalCount,
-                this.lastMonthTurnovalCount = res.data.data.lastMonthTurnovalCount,
-                this.totalTurnovalCount = res.data.data.totalTurnovalCount,
-                this.totalYearTuranovalCount = res.data.data.totalYearTuranovalCount,
-                this.totalData[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover,
-                this.totalData[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year
-            }).catch(error => {
-            
-            });
-        },
+    changeName2(value) {
+      this.organizeSelect2 = value;
+      var changeValue2 = value;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {
+            "CampusSon.organizeId": changeValue2.split("-")[0],
+            "CampusSon.levelArent": changeValue2.split("-")[1]
+          }
+        })
+        .then(res => {
+          this.name3 = res.data.data;
+        });
+    },
+    changeName3(value) {
+      this.organizeSelect3 = value;
+      var changeValue3 = value;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
+          method: "post",
+          params: {
+            "Accountant.organizeId": changeValue3.split("-")[0],
+            "Accountant.levelArent": changeValue3.split("-")[1]
+          }
+        })
+        .then(res => {});
+    },
+    searchBtn() {
+      util
+        .ajax({
+          url: "/SJWCRM/getTuranovalCount",
+          method: "post",
+          params: {
+            StarTime: this.StarTime,
+            EndTime: this.EndTime,
+            "Campus.organizeId": this.organizeSelect1.split("-")[0],
+            "Campus.levelArent": this.organizeSelect1.split("-")[1],
+            "CampusSon.organizeId": this.organizeSelect2.split("-")[0],
+            "CampusSon.levelArent": this.organizeSelect2.split("-")[1],
+            "Accountant.organizeId": this.organizeSelect3.split("-")[0],
+            "Accountant.levelArent": this.organizeSelect3.split("-")[1]
+          }
+        })
+        .then(res => {
+          this.todayTurnovalCount = res.data.data.todayTurnovalCount;
+          this.yestodayTurnovalCount = res.data.data.yestodayTurnovalCount;
+          this.thisMonthTurnovalCount = res.data.data.thisMonthTurnovalCount;
+          this.lastMonthTurnovalCount = res.data.data.lastMonthTurnovalCount;
+          this.totalTurnovalCount = res.data.data.totalTurnovalCount;
+          this.totalYearTuranovalCount = res.data.data.totalYearTuranovalCount;
+          this.totalData[0].totalTurnover =
+            res.data.data.rows[0].totalData.totalTurnover;
+          this.totalData[0].totalTurnover_year =
+            res.data.data.rows[0].totalData.totalTurnover_year;
+        })
+        .catch(error => {});
     }
-}
+  }
+};
 </script>

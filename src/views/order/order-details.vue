@@ -69,9 +69,13 @@ export default {
       name1: [],
       name2: [],
       name3: [],
-      organizeSelect1: '',
-      organizeSelect2: '',
-      organizeSelect3: '',
+      organizeSelect1: "",
+      organizeSelect2: "",
+      organizeSelect3: "",
+      detailtotal: "",
+      detailpageNum: "",
+      detailpageSize: "",
+      detailData: "",
       columns1: [
         {
           title: "订单笔数",
@@ -164,31 +168,34 @@ export default {
     };
   },
   mounted() {
-    util.ajax({
+    var nowDate = util.formatDate(new Date());
+    util
+      .ajax({
         // url: '',
         url: "/SJWCRM/initOrderDetails",
         method: "post",
-        params: {}
+        params: {
+          date: nowDate
+        }
       })
       .then(res => {
-        (this.total = res.data.data.total),
-          (this.pageNum = res.data.data.pageNum),
-          (this.pageSize = res.data.data.pageSize),
-          (this.data1[0].totalOrder =
-            res.data.data.rows[0].totalData.totalOrder),
-          (this.data1[0].totalTurnover =
-            res.data.data.rows[0].totalData.totalTurnover),
-          (this.data1[0].totalTurnover_year =
-            res.data.data.rows[0].totalData.totalTurnover_year),
-          (this.data8 = res.data.data.rows),
-          // this.Id = res.data.data.Id,
-          // this.LevelArent = res.data.data.LevelArent,
+        this.total = res.data.data.total;
+        this.pageNum = res.data.data.pageNum;
+        this.pageSize = res.data.data.pageSize;
+        this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder;
+        this.data1[0].totalTurnover =
+          res.data.data.rows[0].totalData.totalTurnover;
+        this.data1[0].totalTurnover_year =
+          res.data.data.rows[0].totalData.totalTurnover_year;
+        this.data8 = res.data.data.rows;
+        // this.Id = res.data.data.Id,
+        // this.LevelArent = res.data.data.LevelArent,
 
-          // 保存一份请求的总数据
-          (this.detailtotal = res.data.data.total),
-          (this.detailpageNum = res.data.data.pageNum),
-          (this.detailpageSize = res.data.data.pageSize),
-          (this.detailData = res.data.data.rows);
+        // 保存一份请求的总数据
+        this.detailtotal = res.data.data.total;
+        this.detailpageNum = res.data.data.pageNum;
+        this.detailpageSize = res.data.data.pageSize;
+        this.detailData = res.data.data.rows;
         // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
         this.handleList();
       })
@@ -198,7 +205,8 @@ export default {
   },
   created() {
     if (Cookies.get("levelArent") == 1) {
-      util.ajax({
+      util
+        .ajax({
           url: "/SJWCRM/getAllSonOrganize",
           method: "post",
           params: {}
@@ -208,8 +216,9 @@ export default {
         });
     }
     if (Cookies.get("levelArent") == 2) {
-        this.organizeDisabled = true;
-        util.ajax({
+      this.organizeDisabled = true;
+      util
+        .ajax({
           url: "/SJWCRM/getAllSonOrganize",
           method: "post",
           params: {}
@@ -219,9 +228,10 @@ export default {
         });
     }
     if (Cookies.get("levelArent") == 3) {
-        this.organizeDisabled = true;
-        this.sonOrganizeDisabled = true;
-        util.ajax({
+      this.organizeDisabled = true;
+      this.sonOrganizeDisabled = true;
+      util
+        .ajax({
           url: "/SJWCRM/getAllSonOrganize",
           method: "post",
           params: {}
@@ -231,41 +241,38 @@ export default {
         });
     }
     if (Cookies.get("levelArent") == 4) {
-        this.organizeDisabled = true;
-        this.sonOrganizeDisabled = true;
-        this.userNameDisabled = true;
+      this.organizeDisabled = true;
+      this.sonOrganizeDisabled = true;
+      this.userNameDisabled = true;
     }
   },
   methods: {
     handleList() {
-      this.total = this.total;
-      this.pageSize = this.pageSize;
-      this.data8 = this.data8;
+      //   this.detailtotal = this.detailtotal;
+      //     this.detailData = this.detailData;
       if (this.total < this.pageSize) {
-        this.data8 = this.data8;
+        this.data8 = this.detailData;
       } else {
-        this.data8 = this.data8.slice(0, this.pageSize);
+        this.data8 = this.detailData.slice(0, this.pageSize);
       }
     },
     changepage(index) {
-      (this.detailtotal = this.detailtotal),
-        (this.detailpageNum = this.detailpageNum),
-        (this.detailpageSize = this.detailpageSize),
-        (this.detailData = this.detailData);
+      this.detailData = this.detailData;
 
       var _start = (index - 1) * this.detailpageSize;
       var _end = index * this.detailpageSize;
       this.data8 = this.detailData.slice(_start, _end);
     },
     changeName1(value) {
-        this.organizeSelect1 =value;
-        var changeValue1 = value;
-        util.ajax({
+      this.organizeSelect1 = value;
+      var changeValue1 = value;
+      util
+        .ajax({
           url: "/SJWCRM/getAllSonOrganize",
           method: "post",
           params: {
-            "Campus.organizeId": changeValue1.split('-')[0],
-            "Campus.levelArent": changeValue1.split('-')[1]
+            "Campus.organizeId": changeValue1.split("-")[0],
+            "Campus.levelArent": changeValue1.split("-")[1]
           }
         })
         .then(res => {
@@ -273,14 +280,15 @@ export default {
         });
     },
     changeName2(value) {
-        this.organizeSelect2 = value;
-        var changeValue2 = value;
-        util.ajax({
+      this.organizeSelect2 = value;
+      var changeValue2 = value;
+      util
+        .ajax({
           url: "/SJWCRM/getAllSonOrganize",
           method: "post",
           params: {
-            "CampusSon.organizeId": changeValue2.split('-')[0],
-            "CampusSon.levelArent": changeValue2.split('-')[1]
+            "CampusSon.organizeId": changeValue2.split("-")[0],
+            "CampusSon.levelArent": changeValue2.split("-")[1]
           }
         })
         .then(res => {
@@ -288,76 +296,52 @@ export default {
         });
     },
     changeName3(value) {
-        this.organizeSelect3 = value;
-        var changeValue3 = value;
-        util.ajax({
-          url: "https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/getAllSonOrganize",
+      this.organizeSelect3 = value;
+      var changeValue3 = value;
+      util
+        .ajax({
+          url: "/SJWCRM/getAllSonOrganize",
           method: "post",
           params: {
-            "Accountant.organizeId": changeValue3.split('-')[0],
-            "Accountant.levelArent": changeValue3.split('-')[1]
+            "Accountant.organizeId": changeValue3.split("-")[0],
+            "Accountant.levelArent": changeValue3.split("-")[1]
           }
         })
-        .then(res => {
-          
-        });
+        .then(res => {});
     },
 
     searchData() {
-      util.ajax({
+      util
+        .ajax({
           url: "/SJWCRM/searchOrderDetails",
           method: "post",
           params: {
             StarTime: this.StarTime,
             EndTime: this.EndTime,
-            "Campus.organizeId": this.organizeSelect1.split('-')[0],
-            "Campus.levelArent": this.organizeSelect1.split('-')[1],
-            "CampusSon.organizeId": this.organizeSelect2.split('-')[0],
-            "CampusSon.levelArent": this.organizeSelect2.split('-')[1],
-            "Accountant.organizeId": this.organizeSelect3.split('-')[0],
-            "Accountant.levelArent": this.organizeSelect3.split('-')[1],
+            "Campus.organizeId": this.organizeSelect1.split("-")[0],
+            "Campus.levelArent": this.organizeSelect1.split("-")[1],
+            "CampusSon.organizeId": this.organizeSelect2.split("-")[0],
+            "CampusSon.levelArent": this.organizeSelect2.split("-")[1],
+            "Accountant.organizeId": this.organizeSelect3.split("-")[0],
+            "Accountant.levelArent": this.organizeSelect3.split("-")[1]
           }
         })
         .then(res => {
-          (this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder),
-        (this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover),
-        (this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year),
-        (this.data8 = res.data.data.rows),
+          this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder;
+          this.data1[0].totalTurnover =
+            res.data.data.rows[0].totalData.totalTurnover;
+          this.data1[0].totalTurnover_year =
+            res.data.data.rows[0].totalData.totalTurnover_year;
+          this.data8 = res.data.data.rows;
 
-        (this.detailtotal = res.data.data.total),
-        (this.detailpageNum = res.data.data.pageNum),
-        (this.detailpageSize = res.data.data.pageSize),
-        (this.detailData = res.data.data.rows);
-        this.handleList();
+          this.detailtotal = res.data.data.total;
+          this.detailpageNum = res.data.data.pageNum;
+          this.detailpageSize = res.data.data.pageSize;
+          this.detailData = res.data.data.rows;
+          this.handleList();
         })
         .catch(error => {});
     },
-    // getOrderList(p) {
-    //     util.ajax({
-    //         url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/init11111',
-    //         method:'post',
-    //         params: {
-    //             StarTime: this.StarTime,
-    //             EndTime: this.EndTime,
-    //             Id: '123',
-    //             userName: this.userName,
-    //             sonOrganize: this.sonOrganize,
-    //             organize: this.organize
-    //         }
-    //     }).then(res => {
-    //         this.totalPage = res.data.data.totalPage,
-    //         this.total = res.data.data.total,
-    //         this.pageNum = res.data.data.pageNum,
-    //         this.pageSize = res.data.data.pageSize,
-    //         this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder,
-    //         this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover,
-    //         this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year,
-    //         this.data8 = res.data.data.rows
-
-    //     }).catch(error => {
-    //         // alert('请求错误')
-    //     });
-    // },
     exportData(type) {
       if (type === 1) {
         this.$refs.table.exportCsv({
