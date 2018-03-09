@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {router} from '../router/index'
+import Cookies from 'js-cookie';
 let axiosAjax =  axios.create({
     //baseURL:ajaxUrl,
     headers: {
@@ -20,8 +21,13 @@ axiosAjax.interceptors.request.use(
 axiosAjax.interceptors.response.use(
         res => {
             console.log(res)
-            //登录超时  跳转
+            
             if(res.data.code==40003||res.data.code===40013){
+                //登录超时  跳转
+            Cookies.remove('user');
+            Cookies.remove('userId');
+            Cookies.remove('organizeId');
+            Cookies.remove('bindId');
                 router.push({
                     name: 'login'
                 }); 
