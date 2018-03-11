@@ -10,9 +10,9 @@
         <div style="margin-top:10px;">
             <row>
                 <span>分部详情</span>
-                <Button type="primary" icon="plus-round" @click="addFlag">添加</Button>
-                <Button type="primary" icon="edit" @click="editFlag">修改</Button>
-                <Button type="error" icon="trash-a" @click="deleteFlag">删除</Button>
+                <Button type="primary" v-show='btnaddFlag' icon="plus-round" @click="addFlag">添加</Button>
+                <Button type="primary" v-show="btneditFlag" icon="edit" @click="editFlag">修改</Button>
+                <Button type="error" v-show="btndelFlag" icon="trash-a" @click="deleteFlag">删除</Button>
                 <Modal v-model="modifyTip" :closable="false">
                     <div class="modal-content"  style="margin: 40px 160px; font-size:16px;">
                         <span>请选择要操作的条目。</span>
@@ -103,6 +103,9 @@ import util from 'utils';
     export default {
         data () {
             return {
+                 btnaddFlag :false,
+                btndelFlag :false,
+                btneditFlag:false,
                 modifyTip: false,
                 modifyTip2: false,
                 errorTip: false,
@@ -175,6 +178,19 @@ import util from 'utils';
             }
         },
         mounted() {
+             // 摁扭权限
+      let curMeunList =JSON.parse(localStorage.menuList); 
+            for (let a in curMeunList){
+            if(curMeunList[a].id==15){
+                this.btnaddFlag = true
+            }
+            if(curMeunList[a].id==17){
+                this.btndelFlag = true
+            }
+            if(curMeunList[a].id==16){
+                this.btneditFlag = true
+            }
+            }
             this.initBranchOrganize();
         },
         methods:{

@@ -20,20 +20,17 @@
             <Col span="6"><Input v-model="ssJsmc" placeholder="登陆名称"></Input></Col>
             <Col span="2" align="center"><div style="height:32px;line-height:32px;font-size:14px;min-width:70px;margin-right:10px;">姓名:</div></Col>
             <Col span="6"><Input v-model="ssJsmc" placeholder="姓名"></Input></Col>
-            <Col span="2"><Button type="primary" style="margin-left:20px;">搜索</Button></Col>
+            <Col span="2"><Button v-show="searchFlag" type="primary" style="margin-left:20px;">搜索</Button></Col>
         </Row>
         <div class="zjl-table"> 
             <Button icon="android-create">修改</Button>
             <Button icon="android-add"@click="addTable">添加</Button>
             <Button icon="android-delete" @click="cxtableDelete">删除</Button> 
-            <Button icon="android-add">导入</Button>
-            <Button icon="ios-redo">导出</Button>   
+            
             <Table style="margin-top:20px" :loading="isloading" :border="true" :stripe="true" :show-header="true"   :data="tableData3" :columns="tableColumns3"></Table>
             <Row style="margin-top:40px;padding:10px;line-height:20px;background:#f2f2f2;">
-                <Col span="12" align="center">
-                     <div>显示<span style="display:inline-block;min-width:20px">12</span>条到<span style="display:inline-block;min-width:20px">56</span>条记录，总共<span style="display:inline-block;min-width:20px">121</span>条记录。</div>
-                </Col>
-                <Col span="12" align="center">
+               
+                <Col span="24" align="right">
                     <Page :total="40" size="small" show-elevator show-sizer></Page>
                 </Col>
             </Row>
@@ -125,8 +122,19 @@
 </template>
 <script>
     export default {
+         mounted(){
+              // 摁扭权限
+      let curMeunList =JSON.parse(localStorage.menuList); 
+            for (let a in curMeunList){
+            if(curMeunList[a].id==30){
+                this.searchFlag = true
+            }
+          
+            }
+        },
         data () {
             return {
+                searchFlag:false,
                 dlName:'',
                 ptName:'',
                 ssJsmc:'',

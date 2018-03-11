@@ -1,7 +1,7 @@
 <template>
     <div>
         <template v-for="(item, index) in menuList">
-            <div style="text-align: center;" :key="index">
+            <div style="text-align: center;" :key="index" v-if="item.val==true">
                 <Dropdown transfer v-if="item.children.length !== 1" placement="right-start" :key="index" @on-click="changeMenu">
                     <Button style="width: 70px;margin-left: -5px;padding:10px 0;" type="text">
                         <Icon :size="20" :color="iconColor" :type="item.icon"></Icon>
@@ -27,6 +27,7 @@
 
 <script>
 export default {
+    // 收缩菜单
     name: 'sidebarMenuShrink',
     props: {
         menuList: {

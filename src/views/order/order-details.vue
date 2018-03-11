@@ -31,7 +31,7 @@
             <i-option v-for="item in name3" :value="item.id+-+item.levelArent">{{ item.organizeName }}</i-option>
         </i-select>
       </i-col>
-      <i-button type="primary" icon="ios-search" @click="searchData()">搜索</i-button>
+      <i-button v-show="searchFlag==true" type="primary" icon="ios-search" @click="searchData()">搜索</i-button>
     </row>
     <h2 style="margin-top:40px">总数据<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
     <div style="width:600px;margin-top:10px;">
@@ -39,7 +39,7 @@
     </div>
     <div  style="margin-top:40px;">
       <Col span="5"><h2>订单详情<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
-      <Col span="3"><Button type="primary" icon="ios-cloud-download" @click="exportData(3)">导出</Button></Col>
+      <Col span="3"><Button v-show="importFlag==true" type="primary" icon="ios-cloud-download" @click="exportData(3)">导出</Button></Col>
     </div>
     <div style="clear:both;padding-top:20px;">
       <Table border :columns="columns8" :data="data8" size="small" ref="table"></Table>
@@ -55,6 +55,11 @@ import Cookies from "js-cookie";
 export default {
   data() {
     return {
+      // 摁扭权限
+     
+        searchFlag:false,
+        importFlag:false
+      ,
       StarTime: "",
       EndTime: "",
       organize: "",
@@ -168,6 +173,21 @@ export default {
     };
   },
   mounted() {
+     
+    let curMeunList =JSON.parse(localStorage.menuList); 
+    console.log(curMeunList)
+    for (let a in curMeunList){
+      if(curMeunList[a].id==3){
+          this.searchFlag = true
+      }
+      if(curMeunList[a].id==4){
+          this.importFlag = true
+      }
+    }
+
+
+
+    
     var nowDate = util.formatDate(new Date());
     util
       .ajax({

@@ -41,7 +41,7 @@
                     <i-option v-for="item in name3" :value="item.id+-+item.levelArent">{{ item.organizeName }}</i-option>
                 </i-select>
             </Col>
-            <Button type="primary" @click="searchBtn" icon="ios-search">搜索</Button>
+            <Button type="primary" v-show="searchFlag" @click="searchBtn" icon="ios-search">搜索</Button>
         </row>
         <h2 style="margin-top:40px">总数据<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
         <div style="width:100%;margin-top:10px;">
@@ -56,6 +56,10 @@ import Cookies from "js-cookie";
 export default {
   data() {
     return {
+      // 摁扭权限
+      
+        searchFlag:false
+      ,
       StarTime: "",
       EndTime: "",
       organize: "",
@@ -82,6 +86,13 @@ export default {
     };
   },
   mounted() {
+      let curMeunList =JSON.parse(localStorage.menuList); 
+    console.log(curMeunList)
+    for (let a in curMeunList){
+      if(curMeunList[a].id==6){
+          this.searchFlag = true
+      }
+    }
     var nowDate = util.formatDate(new Date());
     util
       .ajax({

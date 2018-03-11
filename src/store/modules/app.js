@@ -81,7 +81,35 @@ const app = {
                     }
                 }
             });
+          
+            // 权限判断  第一级菜单
+           let curMenuList = JSON.parse(localStorage.menuList);
+           for(let i in menuList){
+               menuList[i].val=false
+           }
+            for(let j in curMenuList){
+                        if(curMenuList[j].menuType =='button'){
+                            console.log(curMenuList[j]);
+                        }
+                        if(curMenuList[j].menuParentId ==1){
+                            for(let i in menuList){
+                                // 一级
+                                if(menuList[i].val==true){}else{
+                                if(menuList[i].title==curMenuList[j].menuName){
+                                    menuList[i].val = true;
+                                }}
+                                // 二级
+                                for(let a  in menuList[i].children){
+                                    let curChild = menuList[i].children[a];
+                                    
+                                }
+                            }   
+                        }
+                     }
+            //二级菜单
+            console.log(menuList)
             state.menuList = menuList;
+           
         },
         changeMenuTheme (state, theme) {
             state.menuTheme = theme;

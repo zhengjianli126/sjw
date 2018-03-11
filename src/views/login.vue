@@ -95,7 +95,9 @@
                                             id : curData.data.id
                                         }
                                     }).then(res => {
-                                        console.log(res);
+                                        if(res.data.code==20000){
+                                            localStorage.menuList = JSON.stringify(res.data.data)
+                                        }
                                     })
                                     // if (this.form.userName === 'iview_admin') {
                                     //     Cookies.set('access', 0);
