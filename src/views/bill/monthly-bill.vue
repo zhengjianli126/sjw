@@ -86,11 +86,9 @@ import Cookies from "js-cookie";
 export default {
   data() {
     return {
-      
-        searchFlag:false,
-        importFlag:false,
-        exportFlag:false
-      ,
+      searchFlag:false,
+      importFlag:false,
+      exportFlag:false,
       organize: "",
       sonOrganize: "",
       userName: "",
@@ -308,17 +306,18 @@ export default {
           }
         })
         .then(res => {
-          this.thisMonthCommition = res.data.data.rows[0].thisMonthCommition;
-          this.lastMonthCommition = res.data.data.rows[0].lastMonthCommition;
-          this.totalCommition = res.data.data.rows[0].totalCommition;
-          this.commition = res.data.data.rows[0].commition;
+          this.thisMonthCommition = (res.data.data.rows.length>0) ? res.data.data.rows[0].thisMonthCommition : 0;
+          this.lastMonthCommition = (res.data.data.rows.length>0) ? res.data.data.rows[0].lastMonthCommition : 0;
+          this.totalCommition = (res.data.data.rows.length>0) ?  res.data.data.rows[0].totalCommition :0;
+          this.commition = (res.data.data.rows.length>0) ? res.data.data.rows[0].commition : 0;
         //   this.pageNum = res.data.data.pageNum;
-          this.data1[0].totalCommition = res.data.data.rows[0].totalCommition;
-          this.data1[0].totalTurnover = res.data.data.rows[0].totalTurnover;
-          this.data1[0].totalTurnover_year = res.data.data.rows[0].totalTurnover_year;
+          this.data1[0].totalCommition = (res.data.data.rows.length>0) ? res.data.data.rows[0].totalCommition : 0;
+          this.data1[0].totalTurnover = (res.data.data.rows.length>0) ? res.data.data.rows[0].totalTurnover : 0;
+          this.data1[0].totalTurnover_year = (res.data.data.rows.length>0) ? res.data.data.rows[0].totalTurnover_year : 0;
 
           this.detailtotal = res.data.data.total;
           this.detailData = res.data.data.rows;
+          this.handleList();
         })
         .catch(err => {
             this.date8 = []
@@ -336,7 +335,7 @@ export default {
         });
       } else if (type === 3) {
         this.$refs.table.exportCsv({
-          filename: "订单详情",
+          filename: "每月对账订单详情",
           columns: this.columns8,
           data: this.detailData
         });

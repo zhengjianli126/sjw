@@ -144,8 +144,12 @@ export default {
         },
         {
           title: "投资时间",
-          key: "orderDealTime",
-          width: 150
+          key: "orderTime",
+          width: 150,
+          render: (h, params) => {
+                      const orderDealTime = util.formatDate(params.row.orderDealTime);
+                      return h('div', orderDealTime);
+                  }         
           //    "sortable": true
         },
         {
@@ -323,7 +327,7 @@ export default {
 
     searchData() {
       util.ajax({
-          url: "https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/getdingdan",
+          url: "/SJWCRM/searchOrderDetails",
           method: "post",
           params: {
             StartTime: this.StartTime && util.formatDate(this.StartTime.getTime()),
@@ -336,9 +340,9 @@ export default {
             "Accountant.levelArent": this.organizeSelect3.split("-")[1]
           }
         }).then(res => {
-          this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder;
-          this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover;
-          this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year;
+          this.data1[0].totalOrder = (res.data.data.rows.length>0) ? res.data.data.rows[0].totalData.totalOrder : 0;
+          this.data1[0].totalTurnover = (res.data.data.rows.length>0) ? res.data.data.rows[0].totalData.totalTurnover :0;
+          this.data1[0].totalTurnover_year = (res.data.data.rows.length>0) ? res.data.data.rows[0].totalData.totalTurnover_year : 0;
         //   this.data8 = res.data.data.rows;
 
           this.detailtotal = res.data.data.total;

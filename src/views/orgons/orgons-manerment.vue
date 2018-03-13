@@ -30,7 +30,7 @@
                         <span>添加分部</span>
                     </p>
                     <div class="modal-content">
-                        <span>机构名称：</span><span v-model="organize">{{organize}}</span>
+                        <span>机构名称：</span><span v-model="topOrganize">{{topOrganize}}</span>
                     </div>
                     <div style="margin-top:20px;">
                         <span>分部名称：</span><Input v-model="addnewName" style="width:200px;" placeholder=""></Input>
@@ -51,7 +51,7 @@
                         <span>修改分部</span>
                     </p>
                     <div class="modal-content">
-                        <span>机构名称：</span><span v-model="organize">{{organize}}</span>
+                        <span>机构名称：</span><span v-model="topOrganize">{{topOrganize}}</span>
                     </div>
                     <div style="margin-top:20px;">
                         <span>分部名称：</span><Input v-model="editnewName" style="width:200px;" placeholder=""></Input>
@@ -86,6 +86,7 @@
 </template>
 <script>
 import util from 'utils';
+import Cookies from "js-cookie";
     export default {
         data () {
             return {
@@ -97,6 +98,7 @@ import util from 'utils';
                 detailtotal: 0,
                 detailpageNum: 0,
                 detailData: [],
+                topOrganize: '',
                 addnewName: '',
                 editnewName: '',
                 btnaddFlag :false,
@@ -254,6 +256,7 @@ import util from 'utils';
                 this.data8 = this.detailData.slice(_start, _end);
             },
             addFlag () {
+                this.topOrganize = Cookies.get("topOrganize");
                 this.addFlagShow = true;
             },
             addFlagClose () {
@@ -262,6 +265,7 @@ import util from 'utils';
                 this.errorTip2=false;
             },
             editFlag () {
+                this.topOrganize = Cookies.get("topOrganize");
                 if(this.selectionData.length){
                     this.editFlagShow = true;
                 }else{
@@ -299,6 +303,7 @@ import util from 'utils';
                         }
                     }).then(res => {
                         this.addFlagShow = false;
+                        this.errorTip = false;
                         this.initOrganize();
                         
                     }).catch(err => {
@@ -307,20 +312,24 @@ import util from 'utils';
                     }
             },
             editSave () {
-                util.ajax({
-                    url: '/SJWCRM/ModifyOrganizeName', 
-                    method:'post',
-                    params: {
-                        organizeId: this.organizeId,
-                        newName: this.editnewName
-                    }
-                }).then(res => {
-                    this.editFlagShow = false
-                    this.initOrganize();
-                    
-                }).catch(err => {
+                if(this.editnewName) {
+                    util.ajax({
+                        url: '/SJWCRM/ModifyOrganizeName', 
+                        method:'post',
+                        params: {
+                            organizeId: this.organizeId,
+                            newName: this.editnewName
+                        }
+                    }).then(res => {
+                        this.editFlagShow = false
+                        this.initOrganize();
+                        
+                    }).catch(err => {
 
-                });
+                    });
+                } else {
+                    this.$Message.warning('请填写分布名称');
+                }
             },
             del () {
                 util.ajax({

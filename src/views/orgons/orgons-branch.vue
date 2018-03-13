@@ -34,7 +34,7 @@
                         <span>添加子分部</span>
                     </p>
                     <div class="modal-content">
-                        <span>机构名称：</span><span v-model="organize">{{organize}}</span>
+                        <span>机构名称：</span><span v-model="topOrganize">{{topOrganize}}</span>
                     </div>
                     <div style="margin-top:20px;">
                         <span>分部名称：</span><span v-model="newName">{{newName}}</span>
@@ -58,7 +58,7 @@
                         <span>修改子分部</span>
                     </p>
                     <div class="modal-content">
-                        <span>机构名称：</span><span v-model="organize">{{organize}}</span>
+                        <span>机构名称：</span><span v-model="topOrganize">{{topOrganize}}</span>
                     </div>
                     <div style="margin-top:20px;">
                         <span>分部名称：</span>
@@ -100,6 +100,7 @@
 </template>
 <script>
 import util from 'utils';
+import Cookies from "js-cookie";
     export default {
         data () {
             return {
@@ -110,6 +111,7 @@ import util from 'utils';
                 pageSize: 10,
                 detailtotal: 0,
                 detailpageNum: 0,
+                topOrganize: '',
                 btnaddFlag :false,
                 btndelFlag :false,
                 btneditFlag:false,
@@ -243,6 +245,7 @@ import util from 'utils';
             },
             
             addFlag () {
+                this.topOrganize = Cookies.get('topOrganize');
                 this.addFlagShow = true;
             },
             addFlagClose () {
@@ -251,6 +254,7 @@ import util from 'utils';
                 this.errorTip2=false;
             },
             editFlag () {
+                this.topOrganize = Cookies.get('topOrganize');
                 if(this.selectionData.length){
                     this.editFlagShow = true;
                 }else{
@@ -276,8 +280,6 @@ import util from 'utils';
             addSave () {
                 if (!this.addnewName) {
                     this.errorTip=true;
-                }else if (this.addnewName ==2) {
-
                 } else {
                     util.ajax({
                         url: '/SJWCRM/addOrganizeSon', 
@@ -295,19 +297,25 @@ import util from 'utils';
                 }
             },
             editSave () {
-                util.ajax({
-                    url: '/SJWCRM/ModifyOrganizeSonName', 
-                    method:'post',
-                    params: {
-                        id: this.id,
-                        newName: this.newName
-                    }
-                }).then(res => {
-                    this.editFlagShow = false
-                    this.initBranchOrganize();
-                }).catch(err => {
+                if (this.sonNewName) {
+                    util.ajax({
+                        url: '/SJWCRM/ModifyOrganizeSonName', 
+                        method:'post',
+                        params: {
+                            id: this.id,
+                            newName: this.newName
+                        }
+                    }).then(res => {
+                        this.editFlagShow = false;
+                        this.errorTip = false;
+                        this.initBranchOrganize();
+                    }).catch(err => {
 
-                });
+                    });
+                } else  {
+                    this.$Message.warning('请输入子分部名称！');
+                }
+                
             },
             del () {
                 util.ajax({
