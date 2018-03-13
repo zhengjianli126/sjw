@@ -73,7 +73,7 @@
                 <div>机构名称：</div>
                 </Col>
                 <Col>
-                <div>恋家</div>
+                <div>{{topOrganize}}</div>
                 </Col>
             </Row>
             <Row style="margin-top:10px;">
@@ -81,19 +81,9 @@
                 <div>角色名称：</div>
                 </Col>
                 <Col span="">
-                <Select v-model="model1" style="width:200px">
-                                            <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                                        </Select>
-                </Col>
-            </Row>
-            <Row style="margin-top:10px;">
-                <Col align="right" span="6">
-                <div>子分部名称：</div>
-                </Col>
-                <Col span="">
-                <Select v-model="model1" style="width:200px">
-                                            <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                                        </Select>
+                <Select v-model="model1" @on-change="getSelectData2"  style="width:200px">
+                                                    <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                                </Select>
                 </Col>
             </Row>
             <Row style="margin-top:10px;">
@@ -101,9 +91,19 @@
                 <div>分部名称：</div>
                 </Col>
                 <Col span="">
-                <Select v-model="model1" style="width:200px">
-                                            <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                                        </Select>
+                <Select v-model="model2"  @on-change="getSelectData" style="width:200px">
+                    <Option v-for="item in cityList2" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+                </Col>
+            </Row>
+            <Row style="margin-top:10px;">
+                <Col align="right" span="6">
+                <div>子分部名称：</div>
+                </Col>
+                <Col span="">
+                <Select v-model="model3"  @on-change="getSelectData1" style="width:200px">
+                    <Option v-for="item in cityList3" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
                 </Col>
             </Row>
             <Row style="margin-top:10px;">
@@ -127,7 +127,7 @@
             </Row>
             <div slot="footer">
                 <Button type="primary" @click="modal1 = false">取消</Button>
-                <Button type="success" @click="tableDelete">提交</Button>
+                <Button type="success" @click="submiClick">提交</Button>
             </div>
         </Modal>
     
@@ -136,6 +136,7 @@
 
 <script>
     import util from '@/libs/util';
+    import Cookie from 'js-cookie'
     export default {
         mounted() {
             // 摁扭权限
@@ -153,6 +154,17 @@
         },
         data() {
             return {
+                // 子分部 Id
+                zfbId:'',
+                // 角色Id
+                jsId:'',
+                model1: [],
+                model2: [],
+                model3: [],
+                cityList: [],
+                cityList2: [],
+                cityList3: [],
+                topOrganize: '',
                 selectionData: [],
                 pageTotal: '1',
                 searchFlag: false,
@@ -217,7 +229,62 @@
              * 如果没有选中，提示未选中，
              * 如果选中，打开删除弹框
              */
+             // 获取角色ID
+                getSelectData2(sss){
+                    console.log(sss)
+                for(let i in this.cityList){
+                    if(this.cityList[i].value==sss){
+                       
+                        this.jsId = this.cityList[i].id
+                    } 
+                }
+                
+             },
+             // 获取子分部ID
+             getSelectData1(val){
+             
+                for(let i in this.cityList3){
+                    if(this.cityList3[i].value==val){
+                        this.zfbId = this.cityList3[i].id
+                    } 
+                }
+                
+             },
+            // 获取子分部
+            getSelectData(val) {
+                
+                
+                let OrganizeSonId = '';
+                for(let i in this.cityList2){
+                    if(this.cityList2[i].value==val){
+                        OrganizeSonId = this.cityList2[i].id
+                    } 
+                }
+                util.ajax('/SJWCRM/getOrganizeSonByParentId', {
+                    method: 'post',
+                    params: {
+                        OrganizeParentId: OrganizeSonId
+                    }
+                }).then(res => {
+                     
+                            let curList = [];
+                           
+                            for (let i in res.data.data) {
+                                let obj = {};
+                                obj.value = res.data.data[i].organizeName;
+                                obj.label = res.data.data[i].organizeName;
+                                obj.id = res.data.data[i].id;
+                                curList.push(obj);
+                            }
+                           
+                            
+                            
+
+                            this.cityList3 = curList;
+                })
+            },
             // 搜索 
+    
             searchClick() {
                 this.isloading = true
                 util.ajax('/SJWCRM/getSystemUserMess', {
@@ -238,7 +305,7 @@
             pageChange(index) {
                 this.getData(index);
             },
-              // 获取数据
+            // 获取数据
             getData(s) {
     
                 let curIndex = s || '1'
@@ -274,11 +341,11 @@
                 }
             },
             /**@description
-             * 删除 选中的表格行
-    
-             */
+                     * 删除 选中的表格行
+            
+                     */
             tableDelete: function() {
-                console.log(this.selectionData)
+               
                 if (this.selectionData.length > 1) {
                     this.$Message.warning('只能删除一项');
                     this.modal2 = false;
@@ -301,25 +368,72 @@
                 })
     
             },
-    
+            // 提交 新增
+            submiClick() {
+              
+                  util.ajax('/SJWCRM/addSystemUser', {
+                    method: 'post',
+                    params: {
+                        organizeId: this.zfbId,
+                        roleId:this.jsId ,
+                        loginUserName: this.dlName,
+                        userName: this.ptName
+                    }
+                }).then(res => {
+                    if (res.data.code == 20000) {
+                        this.modal1=false;
+                        this.$Message.success('新增成功！')
+                    }else{
+                        this.$Message.error(res.data.msg)
+                }
+                })
+            },
             /**@description
              * 添加
              */
             addTable: function() {
-                util.ajax('/SJWCRM/addSystemUser',{
-                    method:'post',
-                    params:{
-                        organizeId:'',
-                        roleId:'',
-                        loginUserName:'',
-                        userName:''
-                    }
-                }).then(res=>{
-                    if(res.data.code==20000){
-                        this.modal1 = true;
-                    }
-                })
+                this.topOrganize = Cookie.get('topOrganize');
+                this.modal1 = true;
+
+                 util.ajax('/SJWCRM/InitRoleMess', {
+                            method: 'post',
+    
+                        }).then(res => {
+                            
+                            let curList = [];
+                            for (let i in res.data.data.rows) {
+                                let obj = {};
+                                obj.value = res.data.data.rows[i].roleName;
+                                obj.label = res.data.data.rows[i].roleName;
+                                obj.id = res.data.data.rows[i].id;
+                             
+                                curList.push(obj);
+                            }
+                            this.cityList = curList;
+                        })
+                        // 获取分部信息
+                        util.ajax('/SJWCRM/getOrganizeList', {
+                            method: 'post',
+                            params: {
+                                OrganizeId: Cookie.get('OrganizeId')
+                            }
+                        }).then(res => {
+                           
+                            let curList = [];
+                            for (let i in res.data.data) {
+                                let obj = {};
+                                obj.value = res.data.data[i].organizeName;
+                                obj.label = res.data.data[i].organizeName;
+                                obj.id = res.data.data[i].id;
+                                curList.push(obj);
+                            }
+                            this.cityList2 = curList;
+    
+    
+                        })
+               
               
+    
             }
         },
         computed: {

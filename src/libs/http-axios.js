@@ -28,6 +28,7 @@ axiosAjax.interceptors.response.use(
             Cookies.remove('userId');
             Cookies.remove('organizeId');
             Cookies.remove('bindId');
+            Cookies.remove('topOrganize')
                 router.push({
                     name: 'login'
                 }); 

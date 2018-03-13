@@ -77,6 +77,7 @@
                                 if (curData.code === 20000) {
                                     // 用户名称
                                     Cookies.set('user', curData.data.userName);
+                                    Cookies.set('topOrganize', curData.data.topOrganize); 
                                     // 用户id
                                     Cookies.set('userId', curData.data.id);
                                     //机构等级
