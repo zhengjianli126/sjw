@@ -75,7 +75,7 @@
             <Table border :columns="columns8" :data="data8" size="small" ref="table"></Table>
         </div>
         <div style="margin-top:10px;float:right">
-            <Page :total="total" :page-size="pageSize" show-total show-elevator @on-change="changepage"></Page>
+            <Page :total="total" show-total show-elevator @on-change="changepage"></Page>
         </div>
     </div>
 </div>
@@ -94,9 +94,9 @@ export default {
       organize: "",
       sonOrganize: "",
       userName: "",
-      pageSize: "",
-      pageNum: "",
-      total: "",
+      pageSize: 10,
+      pageNum: 0,
+      total: 0,
       DateTime: "",
       organizeDisabled: false,
       sonOrganizeDisabled: false,
@@ -107,9 +107,8 @@ export default {
       organizeSelect1: "",
       organizeSelect2: "",
       organizeSelect3: "",
-      detailtotal: "",
-      detailpageNum: "",
-      detailpageSize: "",
+      detailtotal: 0,
+      detailpageNum: 0,
       detailData: "",
       columns1: [
         { title: "交易总额（元）", key: "totalTurnover" },
@@ -162,7 +161,6 @@ export default {
       .then(res => {
         this.total = res.data.data.total;
         this.pageNum = res.data.data.pageNum;
-        this.pageSize = res.data.data.pageSize;
         this.thisMonthCommition = res.data.data.rows[0].thisMonthCommition;
         this.lastMonthCommition = res.data.data.rows[0].lastMonthCommition;
         this.totalCommition = res.data.data.rows[0].totalCommition;
@@ -176,12 +174,16 @@ export default {
         // 保存一份请求的总数据
         this.detailtotal = res.data.data.total;
         this.detailpageNum = res.data.data.pageNum;
-        this.detailpageSize = res.data.data.pageSize;
         this.detailData = res.data.data.rows;
         // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
         this.handleList();
       })
-      .catch(err => {});
+      .catch(err => {
+          this.$Modal.error({
+                title: "提示",
+                content: err.data.msg
+            });
+      });
   },
   created() {
     if (Cookies.get("levelArent") == 1) {
@@ -228,20 +230,20 @@ export default {
   },
   methods: {
     handleList() {
-      if (this.total < this.pageSize) {
+        this.total = this.detailtotal;
+      if (this.detailtotal < 10) {
         this.data8 = this.detailData;
       } else {
-        this.data8 = this.detailData.slice(0, this.pageSize);
+        this.data8 = this.detailData.slice(0, 10);
       }
     },
     changepage(index) {
       this.detailtotal = this.detailtotal;
       this.detailpageNum = this.detailpageNum;
-      this.detailpageSize = this.detailpageSize;
       this.detailData = this.detailData;
 
-      var _start = (index - 1) * this.detailpageSize;
-      var _end = index * this.detailpageSize;
+      var _start = (index - 1) * 10;
+      var _end = index * 10;
       this.data8 = this.detailData.slice(_start, _end);
     },
     changeName1(value) {
@@ -296,12 +298,12 @@ export default {
           url: "/SJWCRM/getCheckMonthAccount",
           method: "post",
           params: {
-            DateTime: this.DateTime,
-            "Campus.organizeId": this.organizeSelect1.split("-")[0],
+            DateTime: this.DateTime && util.formatDate(this.DateTime.getTime()),
+            "Campus.id": this.organizeSelect1.split("-")[0],
             "Campus.levelArent": this.organizeSelect1.split("-")[1],
-            "CampusSon.organizeId": this.organizeSelect2.split("-")[0],
+            "CampusSon.id": this.organizeSelect2.split("-")[0],
             "CampusSon.levelArent": this.organizeSelect2.split("-")[1],
-            "Accountant.organizeId": this.organizeSelect3.split("-")[0],
+            "Accountant.id": this.organizeSelect3.split("-")[0],
             "Accountant.levelArent": this.organizeSelect3.split("-")[1]
           }
         })
@@ -310,20 +312,17 @@ export default {
           this.lastMonthCommition = res.data.data.rows[0].lastMonthCommition;
           this.totalCommition = res.data.data.rows[0].totalCommition;
           this.commition = res.data.data.rows[0].commition;
-          this.pageNum = res.data.data.pageNum;
-          this.pageSize = res.data.data.pageSize;
+        //   this.pageNum = res.data.data.pageNum;
           this.data1[0].totalCommition = res.data.data.rows[0].totalCommition;
           this.data1[0].totalTurnover = res.data.data.rows[0].totalTurnover;
-          this.data1[0].totalTurnover_year =
-            res.data.data.rows[0].totalTurnover_year;
-          this.data8 = res.data.data.rows;
+          this.data1[0].totalTurnover_year = res.data.data.rows[0].totalTurnover_year;
 
           this.detailtotal = res.data.data.total;
-          this.detailpageNum = res.data.data.pageNum;
-          this.detailpageSize = res.data.data.pageSize;
           this.detailData = res.data.data.rows;
         })
-        .catch(err => {});
+        .catch(err => {
+            this.date8 = []
+        })
     },
     exportData(type) {
       if (type === 1) {

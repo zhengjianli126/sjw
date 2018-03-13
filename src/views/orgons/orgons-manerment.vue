@@ -33,7 +33,7 @@
                         <span>机构名称：</span><span v-model="organize">{{organize}}</span>
                     </div>
                     <div style="margin-top:20px;">
-                        <span>分部名称：</span><Input v-model="newName" style="width:200px;" placeholder=""></Input>
+                        <span>分部名称：</span><Input v-model="addnewName" style="width:200px;" placeholder=""></Input>
                     </div>
                     <div v-show="errorTip" style="margin-top:10px; margin-left:80px; color: #FF7F50">
                             <span>请输入分部名称</span>
@@ -54,7 +54,7 @@
                         <span>机构名称：</span><span v-model="organize">{{organize}}</span>
                     </div>
                     <div style="margin-top:20px;">
-                        <span>分部名称：</span><Input v-model="newName" style="width:200px;" placeholder=""></Input>
+                        <span>分部名称：</span><Input v-model="editnewName" style="width:200px;" placeholder=""></Input>
                     </div>
                     <div slot="footer">
                         <Button type="primary" @click="editFlagClose">关闭</Button>
@@ -64,23 +64,23 @@
                 <Modal v-model="deleteFlagShow" width="360">
                     <p slot="header" style="color:#f60;text-align:center">
                         <Icon type="information-circled"></Icon>
-                        <span>删除</span>
+                        <span>提示</span>
                     </p>
                     <div style="text-align:center">
-                        <p>确定要删除吗</p>
+                        <p>是否确定删除该行信息？</p>
                     </div>
                     <div slot="footer">
-                        <Button type="error" size="large" long :loading="modal_loading" @click="del">删除</Button>
+                        <Button  type="primary" @click="modalCancel">取消</Button>
+                        <Button style="margin-right: 100px;" type="error" :loading="modal_loading" @click="del">删除</Button>
                     </div>
                 </Modal>
              </row>
              <div style="margin-top:10px;">
-                <Table :columns="column2" :data="data2"></Table>
+                <Table @on-selection-change	="selectTable" :columns="column8" :data="data8"></Table>
              </div>
               <div style="margin-top:10px;float:right">
-      <Page :total="40" size="small" show-elevator show-sizer></Page>
+      <Page :total="total" size="small" show-elevator  @on-change="changepage"></Page>
     </div>
-    <div style="margin-top:10px;float:right;line-height:22px;">显示？？条到？？条记录，总共？？条记录。</div>
         </div>
     </div>
 </template>
@@ -89,6 +89,16 @@ import util from 'utils';
     export default {
         data () {
             return {
+                // 选中状态
+                selectionData:[],
+                total: 0,
+                pageNum: 0,
+                pageSize: 10,
+                detailtotal: 0,
+                detailpageNum: 0,
+                detailData: [],
+                addnewName: '',
+                editnewName: '',
                 btnaddFlag :false,
                 btndelFlag :false,
                 btneditFlag:false,
@@ -127,7 +137,7 @@ import util from 'utils';
                     }
                 ],
                 data1: [],
-                 column2: [
+                 column8: [
                     {
                         type: 'selection',
                         width: 60,
@@ -142,7 +152,7 @@ import util from 'utils';
                     {
                         title: '分部名称',
                         align: 'center',
-                        key: 'newName'
+                        key: 'sonOrganize'
                     },
                     {
                         title: '子分部数量',
@@ -152,7 +162,7 @@ import util from 'utils';
                     {
                         title: '理财师数量',
                         align: 'center',
-                        key: 'sonOrganizeCount'
+                        key: 'authoriCount'
                     },
                     {
                         title: '客户数量',
@@ -184,12 +194,12 @@ import util from 'utils';
                         }
                     }
                 ],
-                data2: []
+                data8: []
             }
         },
         mounted() {
              // 摁扭权限
-      let curMeunList =JSON.parse(localStorage.menuList); 
+            let curMeunList =JSON.parse(localStorage.menuList); 
             for (let a in curMeunList){
             if(curMeunList[a].id==11){
                 this.btnaddFlag = true
@@ -201,24 +211,48 @@ import util from 'utils';
                 this.btneditFlag = true
             }
             }
-        this.initOrganize();
+            this.initOrganize();
         },
         methods:{
             initOrganize() {
                 util.ajax({
-                    // url: '/SJWCRM/InitOragnizeMess', 
-                    url: 'https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/jigouguanli',
+                    url: '/SJWCRM/InitOrganizeManagerMess', 
                     method:'post',
                     params: {
                         
                     }
-                }).then(res => {
-                    this.data2 = res.data.data.rows;
+                }).then(res => {console.log(1,res.data.data);
+                    this.total = res.data.data.total;
+                    this.pageNum = res.data.data.pageNum;
+                    this.data8 = res.data.data.rows;
+
+                    // 保存一份请求的总数据
+                    this.detailtotal = res.data.data.total;
+                    this.detailpageNum = res.data.data.pageNum;
+                    // this.detailpageSize = res.data.data.pageSize;
+                    this.detailData = res.data.data.rows;
+                    // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
+                    this.handleList();
+                    
                 }).catch(err => {
 
                 });
             },
+            handleList() {
+                this.total = this.detailtotal;
+                if (this.detailtotal < 10) {
+                        this.data8 = this.detailData;
+                } else {
+                    this.data8 = this.detailData.slice(0, 10);
+                }
+            },
+            changepage(index) {
+                this.detailData = this.detailData;
 
+                var _start = (index - 1) * 10;
+                var _end = index * 10;
+                this.data8 = this.detailData.slice(_start, _end);
+            },
             addFlag () {
                 this.addFlagShow = true;
             },
@@ -228,13 +262,21 @@ import util from 'utils';
                 this.errorTip2=false;
             },
             editFlag () {
-                this.editFlagShow = true;
+                if(this.selectionData.length){
+                    this.editFlagShow = true;
+                }else{
+                    this.$Message.warning('请选择一项！');
+                }
             },
             editFlagClose () {
                 this.editFlagShow = false;
             },
-            deleteFlag () {
-                this.deleteFlagShow = true;
+            deleteFlag() {
+                if(this.selectionData.length){
+                    this.deleteFlagShow = true;
+                }else{
+                    this.$Message.warning('请至少选择一项！');
+                }
             },
             tipConfirm () {
                 this.modifyTip = false;
@@ -242,32 +284,40 @@ import util from 'utils';
             tipConfirm2 () {
                 this.modifyTip2 = false;
             },
-            addSave () {this.errorTip=true;this.errorTip2=true
-                util.ajax({
-                    url: '/SJWCRM/addOrganize', 
-                    method:'post',
-                    params: {
-                        organizeId: this.organizeId,
-                        newName: this.newName
-                    }
-                }).then(res => {
-                    this.initOrganize();
-                    this.addFlag = false
-                }).catch(err => {
+            addSave () {
+                if (!this.addnewName) {
+                    this.errorTip=true;
+                } else if (this.addnewName == 2) {
+                    
+                } else {
+                    util.ajax({
+                        url: '/SJWCRM/addOrganize', 
+                        method:'post',
+                        params: {
+                            organizeId: this.organizeId,
+                            newName: this.addnewName
+                        }
+                    }).then(res => {
+                        this.addFlagShow = false;
+                        this.initOrganize();
+                        
+                    }).catch(err => {
 
-                });
+                    });
+                    }
             },
-            editSave () { this.errorTip=true;this.errorTip2=true
+            editSave () {
                 util.ajax({
                     url: '/SJWCRM/ModifyOrganizeName', 
                     method:'post',
                     params: {
                         organizeId: this.organizeId,
-                        newName: this.newName
+                        newName: this.editnewName
                     }
                 }).then(res => {
+                    this.editFlagShow = false
                     this.initOrganize();
-                    this.editFlag = false
+                    
                 }).catch(err => {
 
                 });
@@ -277,41 +327,26 @@ import util from 'utils';
                     url: '/SJWCRM/deleteOrganize', 
                     method:'post',
                     params: {
-                        organizeId: this.organizeId,
-                        newName: this.newName
+                        organizeId: this.organizeId
                     }
                 }).then(res => {
                     this.initOrganize();
                     this.modal_loading = false;
-                    this.deleteFlag = false;
+                    this.deleteFlagShow = false;
                     this.$Message.success('删除成功');
                 }).catch(err => {
 
                 });
             },
-            async  getData (){
-            
-              // let result = await util.ajax.get('/list');
-               let result = await util.ajax.post('/listp',{a:"b"});
-               if(result.data.success){
-                    this.data1 = result.data.data;
-                    this.data2 = result.data.data;
-               }else {
-
-               }
-              
-            }       
-        },
-        add () {
-            this.$Modal.confirm({
-                title: 'Title',
-                content: '<p>Content of dialog</p><p>Content of dialog</p>',
-                okText: 'OK',
-                cancelText: 'Cancel'
-            });
+            modalCancel () {
+                this.deleteFlagShow = false;
+            },
+            selectTable(selection){
+               this.selectionData = selection;
+            }    
         },
         created(){
-            this.getData();
+            
         }
     }
 </script>

@@ -18,7 +18,7 @@
     <div style="padding:15px;background:#FFF;overflow:hidden">
         <row style="margin-top:10px">
             <Col span="12">
-                查询日期 ：<Date-picker type="date" v-model="StarTime"  placeholder="选择日期" style="width: 200px"></Date-picker>
+                查询日期 ：<Date-picker type="date" v-model="StartTime"  placeholder="选择日期" style="width: 200px"></Date-picker>
                 至&nbsp;&nbsp;<Date-picker v-model="EndTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
             </Col>
         </row>
@@ -57,10 +57,8 @@ export default {
   data() {
     return {
       // 摁扭权限
-      
-        searchFlag:false
-      ,
-      StarTime: "",
+      searchFlag:false,
+      StartTime: "",
       EndTime: "",
       organize: "",
       sonOrganize: "",
@@ -212,13 +210,13 @@ export default {
           url: "/SJWCRM/getTuranovalCount",
           method: "post",
           params: {
-            StarTime: this.StarTime,
-            EndTime: this.EndTime,
-            "Campus.organizeId": this.organizeSelect1.split("-")[0],
+            StartTime: this.StartTime && util.formatDate(this.StartTime.getTime()),
+            EndTime: this.EndTime && util.formatDate(this.EndTime.getTime()),
+            "Campus.id": this.organizeSelect1.split("-")[0],
             "Campus.levelArent": this.organizeSelect1.split("-")[1],
-            "CampusSon.organizeId": this.organizeSelect2.split("-")[0],
+            "CampusSon.id": this.organizeSelect2.split("-")[0],
             "CampusSon.levelArent": this.organizeSelect2.split("-")[1],
-            "Accountant.organizeId": this.organizeSelect3.split("-")[0],
+            "Accountant.id": this.organizeSelect3.split("-")[0],
             "Accountant.levelArent": this.organizeSelect3.split("-")[1]
           }
         })

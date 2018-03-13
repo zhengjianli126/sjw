@@ -6,7 +6,7 @@
     <row style="margin-top:10px">
         <i-col span="6">
             查询日期 ：
-            <Date-picker v-model="StarTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
+            <Date-picker v-model="StartTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
         </i-col>
         <i-col span="5">
           至 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Date-picker type="date" v-model="EndTime" placeholder="选择日期" style="width: 200px"></Date-picker>
@@ -45,7 +45,7 @@
       <Table border :columns="columns8" :data="data8" size="small" ref="table"></Table>
     </div>
     <div style="margin-top:10px;float:right">
-      <Page :total="total" :page-size="pageSize" show-total show-elevator @on-change="changepage"></Page>
+      <Page :total="total"  show-total show-elevator @on-change="changepage"></Page>
     </div>
   </div>
 </template>
@@ -56,18 +56,16 @@ export default {
   data() {
     return {
       // 摁扭权限
-     
-        searchFlag:false,
-        importFlag:false
-      ,
-      StarTime: "",
+      searchFlag:false,
+      importFlag:false,
+      StartTime: "",
       EndTime: "",
       organize: "",
       sonOrganize: "",
       userName: "",
-      total: "",
-      pageNum: "",
-      pageSize: "",
+      total: 0,
+      pageNum: 0,
+      pageSize: 10,
       organizeDisabled: false,
       sonOrganizeDisabled: false,
       userNameDisabled: false,
@@ -77,10 +75,10 @@ export default {
       organizeSelect1: "",
       organizeSelect2: "",
       organizeSelect3: "",
-      detailtotal: "",
-      detailpageNum: "",
-      detailpageSize: "",
-      detailData: "",
+      detailtotal: 0,
+      detailpageNum: 0,
+    //detailpageSize: "10",
+      detailData: [],
       columns1: [
         {
           title: "订单笔数",
@@ -173,7 +171,6 @@ export default {
     };
   },
   mounted() {
-     
     let curMeunList =JSON.parse(localStorage.menuList); 
     console.log(curMeunList)
     for (let a in curMeunList){
@@ -184,9 +181,6 @@ export default {
           this.importFlag = true
       }
     }
-
-
-
     
     var nowDate = util.formatDate(new Date());
     util
@@ -201,20 +195,18 @@ export default {
       .then(res => {
         this.total = res.data.data.total;
         this.pageNum = res.data.data.pageNum;
-        this.pageSize = res.data.data.pageSize;
+        // this.pageSize = res.data.data.pageSize;
         this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder;
         this.data1[0].totalTurnover =
           res.data.data.rows[0].totalData.totalTurnover;
         this.data1[0].totalTurnover_year =
           res.data.data.rows[0].totalData.totalTurnover_year;
         this.data8 = res.data.data.rows;
-        // this.Id = res.data.data.Id,
-        // this.LevelArent = res.data.data.LevelArent,
 
         // 保存一份请求的总数据
         this.detailtotal = res.data.data.total;
         this.detailpageNum = res.data.data.pageNum;
-        this.detailpageSize = res.data.data.pageSize;
+        // this.detailpageSize = res.data.data.pageSize;
         this.detailData = res.data.data.rows;
         // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
         this.handleList();
@@ -268,19 +260,18 @@ export default {
   },
   methods: {
     handleList() {
-      //   this.detailtotal = this.detailtotal;
-      //     this.detailData = this.detailData;
-      if (this.total < this.pageSize) {
-        this.data8 = this.detailData;
+    this.total = this.detailtotal;
+      if (this.detailtotal < 10) {
+          this.data8 = this.detailData;
       } else {
-        this.data8 = this.detailData.slice(0, this.pageSize);
+        this.data8 = this.detailData.slice(0, 10);
       }
     },
     changepage(index) {
       this.detailData = this.detailData;
 
-      var _start = (index - 1) * this.detailpageSize;
-      var _end = index * this.detailpageSize;
+      var _start = (index - 1) * 10;
+      var _end = index * 10;
       this.data8 = this.detailData.slice(_start, _end);
     },
     changeName1(value) {
@@ -331,36 +322,34 @@ export default {
     },
 
     searchData() {
-      util
-        .ajax({
-          url: "/SJWCRM/searchOrderDetails",
+      util.ajax({
+          url: "https://easy-mock.com/mock/5a575c98ab5bcb1957178265/example/getdingdan",
           method: "post",
           params: {
-            StarTime: this.StarTime,
-            EndTime: this.EndTime,
-            "Campus.organizeId": this.organizeSelect1.split("-")[0],
+            StartTime: this.StartTime && util.formatDate(this.StartTime.getTime()),
+            EndTime: this.EndTime && util.formatDate(this.EndTime.getTime()),
+            "Campus.id": this.organizeSelect1.split("-")[0],
             "Campus.levelArent": this.organizeSelect1.split("-")[1],
-            "CampusSon.organizeId": this.organizeSelect2.split("-")[0],
+            "CampusSon.id": this.organizeSelect2.split("-")[0],
             "CampusSon.levelArent": this.organizeSelect2.split("-")[1],
-            "Accountant.organizeId": this.organizeSelect3.split("-")[0],
+            "Accountant.id": this.organizeSelect3.split("-")[0],
             "Accountant.levelArent": this.organizeSelect3.split("-")[1]
           }
-        })
-        .then(res => {
+        }).then(res => {
           this.data1[0].totalOrder = res.data.data.rows[0].totalData.totalOrder;
-          this.data1[0].totalTurnover =
-            res.data.data.rows[0].totalData.totalTurnover;
-          this.data1[0].totalTurnover_year =
-            res.data.data.rows[0].totalData.totalTurnover_year;
-          this.data8 = res.data.data.rows;
+          this.data1[0].totalTurnover = res.data.data.rows[0].totalData.totalTurnover;
+          this.data1[0].totalTurnover_year = res.data.data.rows[0].totalData.totalTurnover_year;
+        //   this.data8 = res.data.data.rows;
 
           this.detailtotal = res.data.data.total;
-          this.detailpageNum = res.data.data.pageNum;
-          this.detailpageSize = res.data.data.pageSize;
+        //   this.detailpageNum = res.data.data.pageNum;
+        //   this.detailpageSize = res.data.data.pageSize;
           this.detailData = res.data.data.rows;
           this.handleList();
         })
-        .catch(error => {});
+        .catch(error => {
+            this.date8 = []
+        });
     },
     exportData(type) {
       if (type === 1) {

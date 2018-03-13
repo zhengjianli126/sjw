@@ -25,8 +25,25 @@
     <div style="clear:both;padding-top:20px;">
       <Table border :columns="columns1" :data="data8"></Table>
     </div>
+    <Modal v-model="bindFlagShow">
+        <p slot="header">
+            <span>绑定首金账户</span>
+        </p>
+        <div class="modal-content">
+            绑定首金线上账号分享更便捷
+        </div>
+        <div style="margin-top:20px;">
+            <span>首金线上账号：</span><Input v-model="onlineUser" style="width:200px;" placeholder=""></Input>
+        </div>
+        <div style="margin-top:20px;">
+            <span style="margin-right: 24px;">登录密码：</span><Input v-model="onlinePassword" style="width:200px;" placeholder=""></Input>
+        </div>
+        <div slot="footer">
+            <Button type="primary" @click="bindBt">绑定</Button>
+        </div>
+    </Modal>
     <div style="margin-top:10px;float:right">
-      <Page :total="total" :page-size="pageSize" show-total show-elevator @on-change="changepage"></Page>
+      <Page :total="total" show-total show-elevator @on-change="changepage"></Page>
     </div>
   </div>
 </template>
@@ -39,12 +56,15 @@
       return {
         turnFlag: false,
         searchFlag: false,
-        total: "",
-        pageNum: "",
-        pageSize: "",
+        bindFlagShow: false,
+        total: 0,
+        pageNum: 0,
+        pageSize: 10,
         organize: "",
         sonOrganize: "",
         userName: "",
+        onlineUser: '',
+        onlinePassword: '',
         organizeDisabled: false,
         sonOrganizeDisabled: false,
         userNameDisabled: false,
@@ -58,6 +78,7 @@
         detailpageNum: "",
         detailpageSize: "",
         detailData: "",
+        paramId: '',
         columns1: [{
             type: "selection",
             width: 60,
@@ -107,7 +128,8 @@
                     },
                     on: {
                       click: () => {
-                        this.show(params.index);
+                          this.bindFlagShow = true;
+                          this.paramId = params.index
                       }
                     }
                   },
@@ -159,135 +181,155 @@
         .catch(err => {});
     },
     created() {
-      if (Cookies.get("levelArent") == 1) {
+        if (Cookies.get("levelArent") == 1) {
         util
-          .ajax({
+            .ajax({
             url: "/SJWCRM/getAllSonOrganize",
             method: "post",
             params: {}
-          })
-          .then(res => {
+            })
+            .then(res => {
             this.name1 = res.data.data;
-          });
-      }
-      if (Cookies.get("levelArent") == 2) {
+            });
+        }
+        if (Cookies.get("levelArent") == 2) {
         this.organizeDisabled = true;
         util
-          .ajax({
+            .ajax({
             url: "/SJWCRM/getAllSonOrganize",
             method: "post",
             params: {}
-          })
-          .then(res => {
+            })
+            .then(res => {
             this.name2 = res.data.data;
-          });
-      }
-      if (Cookies.get("levelArent") == 3) {
+            });
+        }
+        if (Cookies.get("levelArent") == 3) {
         this.organizeDisabled = true;
         this.sonOrganizeDisabled = true;
         util
-          .ajax({
+            .ajax({
             url: "/SJWCRM/getAllSonOrganize",
             method: "post",
             params: {}
-          })
-          .then(res => {
+            })
+            .then(res => {
             this.name3 = res.data.data;
-          });
-      }
-      if (Cookies.get("levelArent") == 4) {
+            });
+        }
+        if (Cookies.get("levelArent") == 4) {
         this.organizeDisabled = true;
         this.sonOrganizeDisabled = true;
         this.userNameDisabled = true;
-      }
+        }
     },
     methods: {
-      handleList() {
-        if (this.total < this.pageSize) {
-          this.data8 = this.detailData;
+        handleList() {
+            this.total = this.detailtotal;
+        if (this.detailtotal < 10) {
+            this.data8 = this.detailData;
         } else {
-          this.data8 = this.detailData.slice(0, this.pageSize);
+            this.data8 = this.detailData.slice(0, 10);
         }
-      },
-      changepage(index) {
+        },
+        changepage(index) {
         this.detailData = this.detailData;
-  
-        var _start = (index - 1) * this.detailpageSize;
-        var _end = index * this.detailpageSize;
+
+        var _start = (index - 1) * 10;
+        var _end = index * 10;
         this.data8 = this.detailData.slice(_start, _end);
-      },
-      changeName1(value) {
+        },
+        changeName1(value) {
         this.organizeSelect1 = value;
         var changeValue1 = value;
         util
-          .ajax({
+            .ajax({
             url: "/SJWCRM/getAllSonOrganize",
             method: "post",
             params: {
-              "Campus.organizeId": changeValue1.split("-")[0],
-              "Campus.levelArent": changeValue1.split("-")[1]
+                "Campus.organizeId": changeValue1.split("-")[0],
+                "Campus.levelArent": changeValue1.split("-")[1]
             }
-          })
-          .then(res => {
+            })
+            .then(res => {
             this.name2 = res.data.data;
-          });
-      },
-      changeName2(value) {
+            });
+        },
+        changeName2(value) {
         this.organizeSelect2 = value;
         var changeValue2 = value;
         util
-          .ajax({
+            .ajax({
             url: "/SJWCRM/getAllSonOrganize",
             method: "post",
             params: {
-              "CampusSon.organizeId": changeValue2.split("-")[0],
-              "CampusSon.levelArent": changeValue2.split("-")[1]
+                "CampusSon.organizeId": changeValue2.split("-")[0],
+                "CampusSon.levelArent": changeValue2.split("-")[1]
             }
-          })
-          .then(res => {
+            })
+            .then(res => {
             this.name3 = res.data.data;
-          });
-      },
-      changeName3(value) {
+            });
+        },
+        changeName3(value) {
         this.organizeSelect3 = value;
         var changeValue3 = value;
         util
-          .ajax({
+            .ajax({
             url: "/SJWCRM/getAllSonOrganize",
             method: "post",
             params: {
-              "Accountant.organizeId": changeValue3.split("-")[0],
-              "Accountant.levelArent": changeValue3.split("-")[1]
+                "Accountant.organizeId": changeValue3.split("-")[0],
+                "Accountant.levelArent": changeValue3.split("-")[1]
             }
-          })
-          .then(res => {});
-      },
-      searchData() {
+            })
+            .then(res => {});
+        },
+        searchData() {
         util
-          .ajax({
-            url: "/SJWCRM/searchOrderDetails",
+            .ajax({
+            url: "/SJWCRM/getAuthoriMess",
             method: "post",
             params: {
-              "Campus.organizeId": this.organizeSelect1.split("-")[0],
-              "Campus.levelArent": this.organizeSelect1.split("-")[1],
-              "CampusSon.organizeId": this.organizeSelect2.split("-")[0],
-              "CampusSon.levelArent": this.organizeSelect2.split("-")[1],
-              "Accountant.organizeId": this.organizeSelect3.split("-")[0],
-              "Accountant.levelArent": this.organizeSelect3.split("-")[1]
+                "Campus.id": this.organizeSelect1.split("-")[0],
+                "Campus.levelArent": this.organizeSelect1.split("-")[1],
+                "CampusSon.id": this.organizeSelect2.split("-")[0],
+                "CampusSon.levelArent": this.organizeSelect2.split("-")[1],
+                "Accountant.id": this.organizeSelect3.split("-")[0],
+                "Accountant.levelArent": this.organizeSelect3.split("-")[1]
+
             }
-          })
-          .then(res => {
+            })
+            .then(res => {
+            this.total = res.data.data.total;
+            this.pageNum = res.data.data.pageNum;
+            this.pageSize = res.data.data.pageSize;
             this.data8 = res.data.data.rows;
-  
+    
+            // 保存一份请求的总数据
             this.detailtotal = res.data.data.total;
-            this.detailpageNum = res.data.data.pageNum;
-            this.detailpageSize = res.data.data.pageSize;
             this.detailData = res.data.data.rows;
-  
+            // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
             this.handleList();
-          })
-          .catch(error => {});
-      }
+            })
+            .catch(err => {});
+        },
+        bindBt() {
+            util.ajax({
+                url: "/SJWCRM/BindOnLineAccount",
+                method: "post",
+                params: {
+                    id: this.paramId,
+                    userName: this.onlineUser,
+                    password: this.onlinePassword
+                }
+                })
+                .then(res => {
+                    this.bindFlagShow = false;
+                    
+                })
+                .catch(err => {});
+        }
     }
-  };
+  }
 </script>

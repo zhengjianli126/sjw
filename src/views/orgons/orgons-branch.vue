@@ -40,7 +40,7 @@
                         <span>分部名称：</span><span v-model="newName">{{newName}}</span>
                     </div>
                     <div style="margin-top:20px;">
-                        <span>子分部名称：</span><Input v-model="sonNewName" style="width:200px;" placeholder=""></Input>
+                        <span>子分部名称：</span><Input  v-model="addnewName" style="width:200px;" placeholder=""></Input>
                     </div>
                     <div v-show="errorTip" style="margin-top:10px; margin-left:80px; color: #FF7F50">
                             <span>请输入子分部名称</span>
@@ -77,24 +77,24 @@
                 <Modal v-model="deleteFlagShow" width="360">
                     <p slot="header" style="color:#f60;text-align:center">
                         <Icon type="information-circled"></Icon>
-                        <span>删除</span>
+                        <span>提示</span>
                     </p>
                     <div style="text-align:center">
-                        <p>确定要删除吗</p>
+                        <p>是否确定删除该行信息？</p>
                     </div>
                     <div slot="footer">
-                        <Button type="error" size="large" long :loading="modal_loading" @click="del">删除</Button>
+                        <Button  type="primary" @click="modalCancel">取消</Button>
+                        <Button style="margin-right: 100px;" type="error" :loading="modal_loading" @click="del">删除</Button>
                     </div>
                 </Modal>
                 
              </row>
              <div style="margin-top:10px;">
-                <Table :columns="column2" :data="data2"></Table>
+                <Table @on-selection-change	="selectTable" :columns="column8" :data="data8"></Table>
              </div>
               <div style="margin-top:10px;float:right">
-            <Page :total="40" size="small" show-elevator show-sizer show-total></Page>
+            <Page :total="total" size="small" show-elevator  show-total @on-change="changepage"></Page>
             </div>
-            <div style="margin-top:10px;float:right;line-height:22px;">显示？？条到？？条记录，总共？？条记录。</div>
         </div>
     </div>
 </template>
@@ -103,7 +103,14 @@ import util from 'utils';
     export default {
         data () {
             return {
-                 btnaddFlag :false,
+                // 选中状态
+                selectionData:[],
+                total: 0,
+                pageNum: 0,
+                pageSize: 10,
+                detailtotal: 0,
+                detailpageNum: 0,
+                btnaddFlag :false,
                 btndelFlag :false,
                 btneditFlag:false,
                 modifyTip: false,
@@ -113,6 +120,7 @@ import util from 'utils';
                 addFlagShow: false,
                 editFlagShow: false,
                 deleteFlagShow: false,
+                addnewName: '',
                 column1: [
                     {
                         title: '分部名称',
@@ -146,7 +154,7 @@ import util from 'utils';
                         label: '我爱我家'
                     }
                 ],
-                column2: [
+                column8: [
                 {
                     type: 'selection',
                     width: 60,
@@ -174,7 +182,7 @@ import util from 'utils';
                     key: 'customerCount'
                 }
             ],
-            data2: []
+            data8: []
             }
         },
         mounted() {
@@ -196,16 +204,42 @@ import util from 'utils';
         methods:{
             initBranchOrganize() {
                 util.ajax({
-                    url: '/SJWCRM/InitOragnizeSonMess', 
+                    url: '/SJWCRM/InitOrganizeSonManagerMess', 
                     method:'post',
                     params: {
                         
                     }
                 }).then(res => {
-                    this.data2 = res.data.data.data2;
+                    this.total = res.data.data.total;
+                    this.pageNum = res.data.data.pageNum;
+                    this.data8 = res.data.data.rows;
+
+                    // 保存一份请求的总数据
+                    this.detailtotal = res.data.data.total;
+                    this.detailpageNum = res.data.data.pageNum;
+                    // this.detailpageSize = res.data.data.pageSize;
+                    this.detailData = res.data.data.rows;
+                    // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
+                    this.handleList();
                 }).catch(err => {
 
                 });
+            },
+            handleList() {
+                this.total = this.detailtotal;
+                if (this.detailtotal < 10) {
+                   
+                        this.data8 = this.detailData;
+                } else {
+                    this.data8 = this.detailData.slice(0, 10);
+                }
+            },
+            changepage(index) {
+                this.detailData = this.detailData;
+
+                var _start = (index - 1) * 10;
+                var _end = index * 10;
+                this.data8 = this.detailData.slice(_start, _end);
             },
             
             addFlag () {
@@ -217,13 +251,21 @@ import util from 'utils';
                 this.errorTip2=false;
             },
             editFlag () {
-                this.editFlagShow = true;
+                if(this.selectionData.length){
+                    this.editFlagShow = true;
+                }else{
+                    this.$Message.warning('请选择一项！');
+                }
             },
             editFlagClose () {
                 this.editFlagShow = false;
             },
             deleteFlag () {
-                this.deleteFlagShow = true;
+                if(this.selectionData.length){
+                    this.deleteFlagShow = true;
+                }else{
+                    this.$Message.warning('请至少选择一项！');
+                }
             },
             tipConfirm () {
                 this.modifyTip = false;
@@ -231,32 +273,38 @@ import util from 'utils';
             tipConfirm2 () {
                 this.modifyTip2 = false;
             },
-            addSave () { this.errorTip=true;this.errorTip2=true
-                util.ajax({
-                    url: '/SJWCRM/addOrganizeSon', 
-                    method:'post',
-                    params: {
-                        organizeId: this.organizeId,
-                        newName: this.newName
-                    }
-                }).then(res => {
-                    this.initOrganize();
-                    this.addFlagShow = false
-                }).catch(err => {
+            addSave () {
+                if (!this.addnewName) {
+                    this.errorTip=true;
+                }else if (this.addnewName ==2) {
 
-                });
+                } else {
+                    util.ajax({
+                        url: '/SJWCRM/addOrganizeSon', 
+                        method:'post',
+                        params: {
+                            id: this.id,
+                            newName: this.newName
+                        }
+                    }).then(res => {
+                        this.addFlagShow = false
+                        this.initBranchOrganize();
+                    }).catch(err => {
+
+                    });
+                }
             },
-            editSave () {this.errorTip=true;this.errorTip2=true
+            editSave () {
                 util.ajax({
                     url: '/SJWCRM/ModifyOrganizeSonName', 
                     method:'post',
                     params: {
-                        organizeId: this.organizeId,
+                        id: this.id,
                         newName: this.newName
                     }
                 }).then(res => {
-                    this.initOrganize();
                     this.editFlagShow = false
+                    this.initBranchOrganize();
                 }).catch(err => {
 
                 });
@@ -266,18 +314,24 @@ import util from 'utils';
                     url: '/SJWCRM/deleteOrganizeSon', 
                     method:'post',
                     params: {
-                        organizeId: this.organizeId,
+                        id: this.id,
                         newName: this.newName
                     }
                 }).then(res => {
-                    this.initOrganize();
+                    this.initBranchOrganize();
                     this.modal_loading = false;
                     this.deleteFlagShow = false;
                     this.$Message.success('删除成功');
                 }).catch(err => {
 
                 });
-            }      
+            },
+            modalCancel () {
+                this.deleteFlagShow = false;
+            },
+            selectTable(selection){
+               this.selectionData = selection;
+            } 
         },
         created(){
             
