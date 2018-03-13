@@ -26,20 +26,21 @@
             <Input v-model="ssJsmc" placeholder="角色名称"></Input>
             </Col>
             <Col span="2">
-            <Button v-show="searchFlag" @click="getData" type="primary" style="margin-left:20px;">搜索</Button>
+            <Button v-show="searchFlag" @click="searchClick" type="primary" style="margin-left:20px;">搜索</Button>
             </Col>
         </Row>
         <div class="zjl-table">
-            <Button icon="android-create">修改</Button>
+            <Button icon="android-create" @click="reviseTable">修改</Button>
             <Button icon="android-add" @click="addTable">添加</Button>
             <Button icon="android-delete" @click="cxtableDelete">删除</Button>
-            <Table style="margin-top:20px" @on-selection-change	="selectTable" :loading="isloading" :border="true" :stripe="true" :show-header="true" :data="tableData3" :columns="tableColumns3"></Table>
+            <Table style="margin-top:20px" @on-selection-change="selectTable" :loading="isloading" :border="true" :stripe="true" :show-header="true" :data="tableData3" :columns="tableColumns3"></Table>
             <Row style="margin-top:40px;padding:10px;line-height:20px;background:#f2f2f2;">
-                
+    
                 <Col span="24" align="right">
-                <Page :total="100" @on-change="pageChange" size="small" show-elevator show-sizer></Page>
+                <Page :total="pageTotal" @on-change="pageChange" size="small" show-elevator></Page>
                 </Col>
             </Row>
+
         </div>
         <!-- 删除弹框 -->
         <Modal v-model="modal2" width="360">
@@ -70,11 +71,11 @@
             </div>
             <div style="margin-left:112px;margin-top:20px;">
                 <span>功能权限：</span>
-                <Tree style="width:300px;" :data="treeData" show-checkbox></Tree>
+                <Tree ref="tree" style="width:300px;" :data="treeData" show-checkbox></Tree>
             </div>
             <div slot="footer">
                 <Button type="primary" @click="modal1 = false">取消</Button>
-                <Button type="success" @click="tableDelete">提交</Button>
+                <Button type="success" @click="submitAdd(tkStatus)">提交</Button>
             </div>
         </Modal>
     </div>
@@ -99,8 +100,12 @@
         },
         data() {
             return {
+                // 修改弹框 2  新增1
+                tkStatus: 1,
+    
                 // 选中状态
-                selectionData:[],
+                menuIds: [],
+                selectionData: [],
                 pageTotal: '1',
                 searchFlag: false,
                 ssJsmc: '',
@@ -109,168 +114,235 @@
                 modal1: false, //新增
                 modal2: false, //删除弹框
                 tableData3: [],
-                treeData: [{
-                    title: '订单详情',
-                    children: [{
-                        title: '搜索',
-                        children:[{
-                            title:'adad',
-                             expand: true,
-                        }],
-                        menuType:'button',
-                        id:'3',
-                        expand: true,
-                    }, {
-                        title: '导出',
-                        menuType:'button',
-                        id:'4',
-                        expand: true,
-                    }]
-                },{
-                    title: '交易额统计',
-                    id:'5',
-                    children: [{
-                        title: '搜索',
-                        menuType:'button',
-                        id:'6',
-                        expand: true,
-                    }]
-                }],
+                treeData: [],
                 showCheckbox: true,
                 showIndex: true,
                 isloading: true
             }
         },
         methods: {
-            //查询表格是否选中 
-            /**@description
-             * 如果没有选中，提示未选中，
-             * 如果选中，打开删除弹框
-             */
-            cxtableDelete() {
-                if(this.selectionData.length){
-                    
-                    this.modal2 = true;
-                }else{
-                    this.$Message.warning('请选择至少选择一项！');
-                  
+            //新增用户
+            submitAdd(status) {
+            // 新增
+            if (status === 1) {
+                // 获取id
+                let a = this.$refs.tree.getCheckedNodes();
+                for (let i in a) {
+                    this.menuIds.push(a[i].id)
                 }
-                
-            },
-            /**@description
-             * 删除 选中的表格行
-             */
-            tableDelete() {
-                let curData = []
-                for(let a in this.selectionData){
-                   curData.push(this.selectionData[a].id)
-                }
-                util.ajax('/SJWCRM/deleteRoleMess',{
-                    method:'post',
-                    params:{
-                        RoleID : curData
+                util.ajax('/SJWCRM/addRole', {
+                    method: 'post',
+                    params: {
+                        roleName: this.xzJsmc,
+                        roleDescribe: this.xzbz,
+                        menuIds: this.menuIds
                     }
-                }).then(res=>{
-                        //  表格
-                        this.modal2 = false;
-                        this.getData()
-                        this.$Message.success('删除成功');
+                }).then(res => {
+                    console.log(res)
+                    if (res.data.code = 20000) {
+                        this.modal1 = false;
+                        this.$Message.success('新增成功');
+                        //刷新表格
+                        this.getData();
+                    } else {
+                        this.$Message.error(res.data.msg);
+                    }
+    
                 })
-                   
-                
+            }else if(status==2){
+                // 修改角色管理
+            }
     
-            },
+        },
+        // 搜索
+        searchClick() {
+            this.isloading = true
+            util.ajax('/SJWCRM/getRoleMessByRoleName', {
+                method: 'post',
+                params: {
+                    roleName: this.ssJsmc
+                }
+            }).then(res => {
+                if (res.data.code == 20000) {
+                    this.tableData3 = res.data.data.rows;
+                    this.pageTotal = res.data.data.total;
+                    this.isloading = false;
+                }
+            })
+        },
+        //查询表格是否选中 
+        /**@description
+         * 如果没有选中，提示未选中，
+         * 如果选中，打开删除弹框
+         */
+        cxtableDelete() {
+            if (this.selectionData.length) {
     
-            addTable: function() {
+                this.modal2 = true;
+            } else {
+                this.$Message.warning('请选择至少选择一项！');
+    
+            }
+    
+        },
+        
+        // 获取树数据
+        getMenuList() {
+            util.ajax('/SJWCRM/getMenuList', {
+                method: 'post'
+            }).then(res => {
+                if (res.data.code == 20000) {
+                    this.treeData = res.data.data;
+                }
+            })
+        },
+        // 获取修改树结构
+        getMenuList1() {
+            util.ajax('/SJWCRM/ModifyRoleMess', {
+                method: 'post',
+                params:{
+                     id:this.selectionData[0].id,
+                     roleName:this.selectionData[0].roleName
+                }
+            }).then(res => {
+                if (res.data.code == 20000) {
+                    this.treeData = res.data.data;
+                }
+            })
+        },
+        /**@description
+         * 删除 选中的表格行
+         */
+        tableDelete() {
+            console.log(this.selectionData)
+            if (this.selectionData.length > 1) {
+                this.$Message.warning('只能删除一项');
+                this.modal2 = false;
+                return;
+            }
+            util.ajax('/SJWCRM/deleteRoleMess', {
+                method: 'post',
+                params: {
+                    RoleId: this.selectionData[0].id
+                }
+            }).then(res => {
+                //  表格
+                if (res.data.code === 20000) {
+                    this.getData();
+                    this.$Message.success('删除成功');
+                } else {
+                    this.$Message.error(res.data.msg);
+                }
+    
+                this.modal2 = false;
+    
+            })
+    
+    
+    
+        },
+    
+        addTable() {
+            this.tkStatus = 1;
+            this.xzJsmc = this.xzbz = '';
+            this.menuIds = [];
+            this.getMenuList();
+            this.modal1 = true;
+    
+        },
+        reviseTable() {
+            console.log(this.selectionData)
+            if(this.selectionData.length&&this.selectionData.length==1){
+                this.tkStatus = 2;
+                this.getMenuList1();
                 this.modal1 = true;
-            },
-            // 分页
-            pageChange(index) {
-                this.getData(index);
-            },
-            // 获取数据
-            getData(s) {
-                let curIndex = s|| '1'
-                this.isloading = true
-                 util.ajax('/SJWCRM/getMenuListByRoleId', {
-                        method: 'post',
-                        params:{
-                            Roleid:10
-                        }
-                    })
-                util.ajax('/SJWCRM/InitRoleMess', {
-                        method: 'post',
-                        params:{
-                            index:curIndex,
-                            ssJsmc:this.ssJsmc
-                        }
-                    })
-                    .then(res => {
-                        this.tableData3 = res.data.data.rows;
-                        this.pageTotal = res.data.data.total;
-                        this.isloading = false;
-                        
-                    })
-                    .catch(function(error) {
-                        console.log(error);
-    
-                    });
-            },
-            selectTable(selection){
-               this.selectionData = selection;
+            }else{
+                 this.$Message.error('请选择一条进行修改！');
             }
             
         },
-        computed: {
-            tableColumns3() {
-                let columns = [];
-                if (this.showIndex) {
-                    columns.push({
-                        title: '序号',
-                        type: 'index',
-                        width: 80,
-                        align: 'center'
-                    })
-                }
-                if (this.showCheckbox) {
-                    columns.push({
-                        type: 'selection',
-                        width: 60,
-                        align: 'center',
-                        
-                    })
-                }
-                columns.push({
-                    title: '角色名称',
-                    key: 'roleName',
-                    align: 'center'
-                });
-                columns.push({
-                    title: '创建时间',
+        // 分页
+        pageChange(index) {
+            this.getData(index);
+        },
+        // 获取数据
+        getData(s) {
+            let curIndex = s || '1'
+            this.isloading = true
     
-                    align: 'center',
-                    render: (h, params) => {
-                        let a = util.formatDate(params.row.updateTime);
-                        return h('div', a)
+            util.ajax('/SJWCRM/InitRoleMess', {
+                    method: 'post',
+                    params: {
+                        index: curIndex,
                     }
-                });
-                columns.push({
-                    title: '修改时间',
-                    align: 'center',
-                    render: (h, params) => {
-                        let a = util.formatDate(params.row.updateTime);
+                })
+                .then(res => {
+                    this.tableData3 = res.data.data.rows;
+                    this.pageTotal = res.data.data.total;
+                    this.isloading = false;
     
-                        return h('div', a)
-                    }
+                })
+                .catch(function(error) {
+                    console.log(error);
+    
                 });
-                columns.push({
-                    title: '备注',
-                    key: 'remarks',
-                    align: 'center'
-                });
-                this.isloading = false;
-                return columns;
-            }
+        },
+        selectTable(selection) {
+            this.selectionData = selection;
         }
+    
+    },
+    computed: {
+    
+        tableColumns3() {
+            let columns = [];
+            if (this.showIndex) {
+                columns.push({
+                    title: '序号',
+                    type: 'index',
+                    width: 80,
+                    align: 'center'
+                })
+            }
+            if (this.showCheckbox) {
+                columns.push({
+                    type: 'selection',
+                    width: 60,
+                    align: 'center',
+    
+                })
+            }
+            columns.push({
+                title: '角色名称',
+                key: 'roleName',
+                align: 'center'
+            });
+            columns.push({
+                title: '创建时间',
+    
+                align: 'center',
+                render: (h, params) => {
+                    let a = util.formatDate(params.row.updateTime);
+                    return h('div', a)
+                }
+            });
+            columns.push({
+                title: '修改时间',
+                align: 'center',
+                render: (h, params) => {
+                    let a = util.formatDate(params.row.updateTime);
+    
+                    return h('div', a)
+                }
+            });
+            columns.push({
+                title: '备注',
+                key: 'remarks',
+                align: 'center'
+            });
+            this.isloading = false;
+            return columns;
+        }
+    }
     }
 </script>
