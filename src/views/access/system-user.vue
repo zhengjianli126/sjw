@@ -36,7 +36,7 @@
             </Col>
         </Row>
         <div class="zjl-table">
-            <Button icon="android-create">修改</Button>
+            <Button icon="android-create" @click="xgClick">修改</Button>
             <Button icon="android-add" @click="addTable">添加</Button>
             <Button icon="android-delete" @click="cxtableDelete">删除</Button>
     
@@ -44,7 +44,7 @@
             <Row style="margin-top:40px;padding:10px;line-height:20px;background:#f2f2f2;">
     
                 <Col span="24" align="right">
-                <Page @on-change="pageChange" :total="pageTotal" size="small" show-elevator></Page>
+                <Page @on-change="pageChange" :total="pageTotal" :loading="isloading" size="small" show-elevator></Page>
                 </Col>
             </Row>
     
@@ -64,9 +64,9 @@
             </div>
         </Modal>
         <!-- 新增 -->
-        <Modal v-model="modal1" title="新增用户">
+        <Modal v-model="modal1" :title="yhQh">
             <p slot="header">
-                <span>新增用户</span>
+                <span>{{yhQh}}</span>
             </p>
             <Row style="margin-top:10px;">
                 <Col align="right" span="6">
@@ -81,9 +81,9 @@
                 <div>角色名称：</div>
                 </Col>
                 <Col span="">
-                <Select v-model="model1" @on-change="getSelectData2"  style="width:200px">
-                                                    <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                                                </Select>
+                <Select v-model="model1" @on-change="getSelectData2" style="width:200px">
+                                                            <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                                        </Select>
                 </Col>
             </Row>
             <Row style="margin-top:10px;">
@@ -91,9 +91,10 @@
                 <div>分部名称：</div>
                 </Col>
                 <Col span="">
-                <Select v-model="model2"  @on-change="getSelectData" style="width:200px">
-                    <Option v-for="item in cityList2" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                </Select>
+    
+                <Select v-model="model2" @on-change="getSelectData" style="width:200px">
+                            <Option v-for="item in cityList2" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                        </Select>
                 </Col>
             </Row>
             <Row style="margin-top:10px;">
@@ -101,9 +102,9 @@
                 <div>子分部名称：</div>
                 </Col>
                 <Col span="">
-                <Select v-model="model3"  @on-change="getSelectData1" style="width:200px">
-                    <Option v-for="item in cityList3" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                </Select>
+                <Select v-model="model3" @on-change="getSelectData1" style="width:200px">
+                            <Option v-for="item in cityList3" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                        </Select>
                 </Col>
             </Row>
             <Row style="margin-top:10px;">
@@ -122,8 +123,6 @@
                 <Input v-model="ptName" style="width:200px;" placeholder=""></Input>
                 </Col>
             </Row>
-    
-    
             </Row>
             <div slot="footer">
                 <Button type="primary" @click="modal1 = false">取消</Button>
@@ -148,19 +147,32 @@
     
             }
         },
-        created: function() {
+        created() {
             // 请求数据
             this.getData()
         },
+        watch:{
+            modal1(val){
+                if(!val){
+                    this.model1 =this.model2 = this.model3 = this.dlName = this.ptName =  this.topOrganize = ''
+                }
+            }
+        },
         data() {
             return {
+                OrganizeSonId: '',
+                //摁扭状态
+                enStatus: '1',
+                user_id: '',
+                // 弹框title切换
+                yhQh: '',
                 // 子分部 Id
-                zfbId:'',
+                zfbId: '',
                 // 角色Id
-                jsId:'',
-                model1: [],
-                model2: [],
-                model3: [],
+                jsId: '',
+                model1: '',
+                model2: '',
+                model3: '',
                 cityList: [],
                 cityList2: [],
                 cityList3: [],
@@ -178,43 +190,7 @@
                 xzbz: '',
                 modal1: false, //新增
                 modal2: false, //删除弹框
-                tableData3: [ //表格
-                    {
-                        name: 'John Brown',
-                        age: 18,
-                        address: 'New York No. 1 Lake Park',
-                        date: '2016-10-03'
-                    },
-                    {
-                        name: 'Jim Green',
-                        age: 24,
-                        address: 'London No. 1 Lake Park',
-                        date: '2016-10-01'
-                    },
-                ],
-                treeData: [{
-                    title: 'parent',
-                    loading: false,
-                    children: [{
-                        title: 'parent 1-1',
-                        expand: true,
-                    }, {
-                        title: 'parent 1-1',
-                        expand: true,
-                    }, {
-                        title: 'parent 1-1',
-                        expand: true,
-                    }, {
-                        title: 'parent 1-1',
-                        expand: true,
-                    }, {
-                        title: 'parent 1-1',
-                        expand: true,
-                    }, {
-                        title: 'parent 1-1',
-                        expand: true,
-                    }]
-                }],
+                tableData3: [],
                 showCheckbox: true,
                 showIndex: true,
                 isloading: true
@@ -229,58 +205,123 @@
              * 如果没有选中，提示未选中，
              * 如果选中，打开删除弹框
              */
-             // 获取角色ID
-                getSelectData2(sss){
-                    console.log(sss)
-                for(let i in this.cityList){
-                    if(this.cityList[i].value==sss){
-                       
+            // 获取角色ID
+            getSelectData2(sss) {
+                console.log(sss)
+                for (let i in this.cityList) {
+                    if (this.cityList[i].value == sss) {
+    
                         this.jsId = this.cityList[i].id
-                    } 
+                    }
                 }
-                
-             },
-             // 获取子分部ID
-             getSelectData1(val){
-             
-                for(let i in this.cityList3){
-                    if(this.cityList3[i].value==val){
+    
+            },
+            // 修改 
+            xgClick() {
+    
+                if (this.selectionData.length == 1) {
+                    this.yhQh = '修改用户'
+                   
+                    this.enStatus = 2
+                    this.dlName = this.selectionData[0].userName;
+                    this.ptName = this.selectionData[0].roleName;
+                    this.user_id = this.selectionData[0].user_id;
+                    this.jsId = this.selectionData[0].roleId;
+                    this.model1 = this.selectionData[0].roleName;
+                  
+                  
+                    util.ajax('/SJWCRM/returnSystenUserOrganizeMess',{
+                        method:'post',
+                        params:{
+                            organizeId:this.selectionData[0].organizeId
+                        }
+                    }).then(res=>{
+                          this.OrganizeSonId = res.data.organizeSonParentId;
+                          this.getSelectDataD()
+                          this.model2 =  res.data.organizeName;
+                          this.model3 = res.data.organizeSonName;
+                          this.topOrganize = res.data.topOrganizeName;
+
+                          this.modal1 = true;
+                    })
+                    
+                    // 获取角色
+                    util.ajax('/SJWCRM/InitRoleMess', {
+                        method: 'post',
+    
+                    }).then(res => {
+    
+                        let curList = [];
+                        for (let i in res.data.data.rows) {
+                            let obj = {};
+                            obj.value = res.data.data.rows[i].roleName;
+                            obj.label = res.data.data.rows[i].roleName;
+                            obj.id = res.data.data.rows[i].id;
+                            curList.push(obj);
+                        }
+                        this.cityList = curList;
+                    })
+                    // 获取分部信息
+                    util.ajax('/SJWCRM/getOrganizeList', {
+                        method: 'post',
+                        params: {
+                            OrganizeId: this.selectionData.organizeId
+                        }
+                    }).then(res => {
+    
+                        let curList = [];
+                        for (let i in res.data.data) {
+                            let obj = {};
+                            obj.value = res.data.data[i].organizeName;
+                            obj.label = res.data.data[i].organizeName;
+                            obj.id = res.data.data[i].id;
+                            curList.push(obj);
+                        }
+                        this.cityList2 = curList;
+    
+                    })
+                } else {
+                    this.$Message.warning('请选择选择一项！');
+                }
+            },
+            // 获取子分部ID
+            getSelectData1(val) {
+                for (let i in this.cityList3) {
+                    if (this.cityList3[i].value == val) {
                         this.zfbId = this.cityList3[i].id
-                    } 
+                    }
                 }
-                
-             },
+    
+            },
             // 获取子分部
             getSelectData(val) {
-                
-                
-                let OrganizeSonId = '';
-                for(let i in this.cityList2){
-                    if(this.cityList2[i].value==val){
-                        OrganizeSonId = this.cityList2[i].id
-                    } 
+    
+                for (let i in this.cityList2) {
+                    if (this.cityList2[i].value == val) {
+                        this.OrganizeSonId = this.cityList2[i].id
+                    }
                 }
-                util.ajax('/SJWCRM/getOrganizeSonByParentId', {
+                this.getSelectDataD();
+               
+            },
+            getSelectDataD(){
+                 util.ajax('/SJWCRM/getOrganizeSonByParentId', {
                     method: 'post',
                     params: {
-                        OrganizeParentId: OrganizeSonId
+                        OrganizeParentId: this.OrganizeSonId
                     }
                 }).then(res => {
-                     
-                            let curList = [];
-                           
-                            for (let i in res.data.data) {
-                                let obj = {};
-                                obj.value = res.data.data[i].organizeName;
-                                obj.label = res.data.data[i].organizeName;
-                                obj.id = res.data.data[i].id;
-                                curList.push(obj);
-                            }
-                           
-                            
-                            
-
-                            this.cityList3 = curList;
+    
+                    let curList = [];
+    
+                    for (let i in res.data.data) {
+                        let obj = {};
+                        obj.value = res.data.data[i].organizeName;
+                        obj.label = res.data.data[i].organizeName;
+                        obj.id = res.data.data[i].id;
+                        curList.push(obj);
+                    }
+                    this.cityList3 = curList;
                 })
             },
             // 搜索 
@@ -314,7 +355,7 @@
                 util.ajax('/SJWCRM/InitSystemUserList', {
                         method: 'post',
                         params: {
-                            index: curIndex,
+                            pageNum: curIndex,
                         }
                     })
                     .then(res => {
@@ -342,10 +383,10 @@
             },
             /**@description
                      * 删除 选中的表格行
-            
+                
                      */
             tableDelete: function() {
-               
+    
                 if (this.selectionData.length > 1) {
                     this.$Message.warning('只能删除一项');
                     this.modal2 = false;
@@ -361,6 +402,7 @@
                     if (res.data.code === 20000) {
                         this.getData();
                         this.$Message.success('删除成功');
+                        this.selectionData = [];
                     } else {
                         this.$Message.error(res.data.msg);
                     }
@@ -370,73 +412,101 @@
             },
             // 提交 新增
             submiClick() {
-              
-                  util.ajax('/SJWCRM/addSystemUser', {
-                    method: 'post',
-                    params: {
-                        organizeId: this.zfbId,
-                        roleId:this.jsId ,
-                        loginUserName: this.dlName,
-                        userName: this.ptName
-                    }
-                }).then(res => {
-                    if (res.data.code == 20000) {
-                        this.modal1=false;
-                        this.$Message.success('新增成功！')
-                    }else{
-                        this.$Message.error(res.data.msg)
+                if (this.enStatus == 1) {
+                    util.ajax('/SJWCRM/addSystemUser', {
+                        method: 'post',
+                        params: {
+    
+                            organizeId: this.zfbId,
+                            roleId: this.jsId,
+                            loginUserName: this.dlName,
+                            userName: this.ptName
+                        }
+                    }).then(res => {
+                        if (res.data.code == 20000) {
+                            this.modal1 = false;
+                             
+                          
+                            this.$Message.success('新增成功！')
+                            this.getData();
+                            this.selectionData = [];
+                        } else {
+                            this.$Message.error(res.data.msg)
+                        }
+                    })
+                } else if (this.enStatus == 2) {
+                    util.ajax('/SJWCRM/modifySystemUserMess', {
+                        method: 'post',
+                        params: {
+                            userId: this.user_id,
+                            organizeId: this.zfbId,
+                            roleId: this.jsId,
+                            loginUserName: this.dlName,
+                            userName: this.ptName
+                        }
+                    }).then(res => {
+                        if (res.data.code == 20000) {
+                            this.modal1 = false;
+                            this.$Message.success('修改成功');
+                            this.getData();
+                            this.selectionData = [];
+                        } else {
+                            this.$Message.error(res.data.msg);
+                        }
+                    })
                 }
-                })
             },
             /**@description
              * 添加
              */
             addTable: function() {
+                this.enStatus = 1;
                 this.topOrganize = Cookie.get('topOrganize');
+                this.yhQh = "新增用户";
                 this.modal1 = true;
-
-                 util.ajax('/SJWCRM/InitRoleMess', {
-                            method: 'post',
     
-                        }).then(res => {
-                            
-                            let curList = [];
-                            for (let i in res.data.data.rows) {
-                                let obj = {};
-                                obj.value = res.data.data.rows[i].roleName;
-                                obj.label = res.data.data.rows[i].roleName;
-                                obj.id = res.data.data.rows[i].id;
-                             
-                                curList.push(obj);
-                            }
-                            this.cityList = curList;
-                        })
-                        // 获取分部信息
-                        util.ajax('/SJWCRM/getOrganizeList', {
-                            method: 'post',
-                            params: {
-                                OrganizeId: Cookie.get('OrganizeId')
-                            }
-                        }).then(res => {
-                           
-                            let curList = [];
-                            for (let i in res.data.data) {
-                                let obj = {};
-                                obj.value = res.data.data[i].organizeName;
-                                obj.label = res.data.data[i].organizeName;
-                                obj.id = res.data.data[i].id;
-                                curList.push(obj);
-                            }
-                            this.cityList2 = curList;
+                util.ajax('/SJWCRM/InitRoleMess', {
+                    method: 'post',
+    
+                }).then(res => {
+    
+                    let curList = [];
+                    for (let i in res.data.data.rows) {
+                        let obj = {};
+                        obj.value = res.data.data.rows[i].roleName;
+                        obj.label = res.data.data.rows[i].roleName;
+                        obj.id = res.data.data.rows[i].id;
+                        curList.push(obj);
+                    }
+                    this.cityList = curList;
+                })
+                // 获取分部信息
+                util.ajax('/SJWCRM/getOrganizeList', {
+                    method: 'post',
+                    params: {
+                        OrganizeId: Cookie.get('OrganizeId')
+                    }
+                }).then(res => {
+    
+                    let curList = [];
+                    for (let i in res.data.data) {
+                        let obj = {};
+                        obj.value = res.data.data[i].organizeName;
+                        obj.label = res.data.data[i].organizeName;
+                        obj.id = res.data.data[i].id;
+                        curList.push(obj);
+                    }
+                    this.cityList2 = curList;
     
     
-                        })
-               
-              
+                })
+    
+    
     
             }
         },
         computed: {
+            
             tableColumns3() {
                 let columns = [];
                 if (this.showIndex) {
@@ -469,7 +539,7 @@
                     title: '创建时间',
                     align: 'center',
                     render: (h, params) => {
-                        let a = params.row.createTime && util.formatDate(params.row.createTime)
+                        let a = params.row.createTime && util.formatDate(params.row.createTime);
                         return h('div', a)
                     }
     
@@ -478,7 +548,7 @@
                     title: '修改时间',
                     align: 'center',
                     render: (h, params) => {
-                        let a = params.row.createTime && util.formatDate(params.row.updateTime)
+                        let a = params.row.createTime && util.formatDate(params.row.updateTime);
                         return h('div', a)
                     }
                 });

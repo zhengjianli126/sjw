@@ -57,7 +57,7 @@
             </div>
         </Modal>
         <!-- 新增 -->
-        <Modal v-model="modal1" :title = "xzjsTitl">
+        <Modal v-model="modal1" :title="xzjsTitl">
             <p slot="header">
                 <span>{{xzjsTitl}}</span>
             </p>
@@ -97,6 +97,15 @@
         created: function() {
             // 请求数据
             this.getData()
+        },
+        watch: {
+            // 关闭弹框清除信息
+            modal1(val) {
+                if (!val) {
+                    this.xzJsmc = this.xzbz = '';
+                    this.menuIds = [];
+                }
+            }
         },
         data() {
             return {
@@ -158,10 +167,10 @@
                         this.menuIds.push(a[i].id)
                     }
                     console.log(this.selectionData)
-                     util.ajax('/SJWCRM/ModifyRoleMess', {
+                    util.ajax('/SJWCRM/ModifyRoleMess', {
                         method: 'post',
                         params: {
-                            id:this.selectionData[0].id,
+                            id: this.selectionData[0].id,
                             roleName: this.xzJsmc,
                             roleDescribe: this.xzbz,
                             menuIds: this.menuIds
@@ -169,7 +178,7 @@
                     }).then(res => {
                         console.log(res)
                         if (res.data.code == 20000) {
-                            
+    
                             this.modal1 = false;
                             this.$Message.success('修改成功');
                             //刷新表格
@@ -221,8 +230,6 @@
                 }).then(res => {
                     if (res.data.code == 20000) {
                         this.treeData = res.data.data;
-    
-    
                     }
                 })
             },
@@ -280,8 +287,7 @@
     
             addTable() {
                 this.tkStatus = 1;
-                this.xzJsmc = this.xzbz = '';
-                this.menuIds = [];
+    
                 this.xzjsTitl = "新增角色";
                 this.getMenuList();
                 this.modal1 = true;

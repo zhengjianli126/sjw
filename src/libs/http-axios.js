@@ -37,7 +37,14 @@ axiosAjax.interceptors.response.use(
         },
         error => {
             console.log(error)
-            
+            Cookies.remove('user');
+            Cookies.remove('userId');
+            Cookies.remove('organizeId');
+            Cookies.remove('bindId');
+            Cookies.remove('topOrganize')
+                router.push({
+                    name: 'login'
+                }); 
             return Promise.reject(error.response.data) 
         });
     export default axiosAjax
