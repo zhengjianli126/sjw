@@ -86,6 +86,8 @@
                                     Cookies.set('bindId', curData.data.bindId);
                                     //用户等级
                                     Cookies.set('levelArent', curData.data.levelArent);
+                                    // 第一条订单交易时间
+                                    Cookies.set('firstOrderTime', curData.data.firstOrderTime);
                                     this.$store.commit('setAvator', 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3448484253,3685836170&fm=27&gp=0.jpg');
                                     this.$router.push({
                                         name: 'home_index'

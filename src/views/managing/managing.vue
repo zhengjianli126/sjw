@@ -92,7 +92,7 @@
           },
           {
             title: "理财师",
-            key: "userName",
+            key: "authoriName",
             align: "center"
           },
           {
@@ -161,7 +161,7 @@
           url: "/SJWCRM/InitAuthoriMess",
           method: "post",
           params: {
-            date: nowDate
+            
           }
         })
         .then(res => {

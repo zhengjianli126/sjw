@@ -18,8 +18,8 @@
     <div style="padding:15px;background:#FFF;overflow:hidden">
         <row style="margin-top:10px">
             <Col span="12">
-                查询日期 ：<Date-picker type="date" v-model="StartTime"  placeholder="选择日期" style="width: 200px"></Date-picker>
-                至&nbsp;&nbsp;<Date-picker v-model="EndTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
+                查询日期 ：<Date-picker :options="options1" type="date" v-model="StartTime"  placeholder="选择日期" style="width: 200px; margin-right: 118px;"></Date-picker>
+                至：&nbsp;<Date-picker :options="options1" v-model="EndTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
             </Col>
         </row>
         <row style="margin-top:10px">
@@ -43,7 +43,7 @@
             </Col>
             <Button type="primary" v-show="searchFlag" @click="searchBtn" icon="ios-search">搜索</Button>
         </row>
-        <h2 style="margin-top:40px">总数据<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
+        <h2 style="margin-top:40px">总数据<Span v-show="noteFlag" style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
         <div style="width:100%;margin-top:10px;">
             <Table border :columns="columns1" :data="totalData"></Table>
         </div>
@@ -63,6 +63,7 @@ export default {
       organize: "",
       sonOrganize: "",
       userName: "",
+      noteFlag: true,
       todayTurnovalCount: "",
       organizeDisabled: false,
       sonOrganizeDisabled: false,
@@ -73,6 +74,12 @@ export default {
       organizeSelect1: "",
       organizeSelect2: "",
       organizeSelect3: "",
+      options1: {
+          disabledDate (date) {
+            // 24*60*60*1000 = 86400000 代表的是一天二十四小时的毫秒数
+              return date && (date.valueOf() > Date.now() || date.valueOf() < Cookies.get("firstOrderTime")/1000);
+          }
+      },
       columns1: [
         { title: " ", key: "totalOrder" },
         { title: "总交易额（元）", key: "totalTurnover" },
@@ -220,7 +227,7 @@ export default {
             "Accountant.levelArent": this.organizeSelect3.split("-")[1]
           }
         })
-        .then(res => {
+        .then(res => {this.noteFlag = false;
           this.todayTurnovalCount = res.data.data.todayTurnovalCount;
           this.yestodayTurnovalCount = res.data.data.yestodayTurnovalCount;
           this.thisMonthTurnovalCount = res.data.data.thisMonthTurnovalCount;
@@ -231,6 +238,7 @@ export default {
             res.data.data.rows[0].totalData.totalTurnover;
           this.totalData[0].totalTurnover_year =
             res.data.data.rows[0].totalData.totalTurnover_year;
+            
         })
         .catch(error => {});
     }

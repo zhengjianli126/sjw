@@ -4,12 +4,12 @@
 <template>
   <div style="padding:15px;background:#FFF;overflow:hidden">
     <row style="margin-top:10px">
-        <i-col span="6">
+        <i-col span="7">
             查询日期 ：
-            <Date-picker v-model="StartTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
+            <Date-picker v-model="StartTime" type="date" :options="options1"  placeholder="选择日期" style="width: 200px; "></Date-picker>
         </i-col>
         <i-col span="5">
-          至 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Date-picker type="date" v-model="EndTime" placeholder="选择日期" style="width: 200px"></Date-picker>
+          至： <Date-picker type="date" :options="options1" v-model="EndTime" placeholder="选择日期" style="width: 200px"></Date-picker>
         </i-col>
     </row>
     <row style="margin-top:10px">
@@ -33,12 +33,12 @@
       </i-col>
       <i-button v-show="searchFlag==true" type="primary" icon="ios-search" @click="searchData()">搜索</i-button>
     </row>
-    <h2 style="margin-top:40px">总数据<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
+    <h2 style="margin-top:40px">总数据<Span v-show="noteFlag" style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
     <div style="width:600px;margin-top:10px;">
       <Table border :columns="columns1" :data="data1"></Table>
     </div>
     <div  style="margin-top:40px;">
-      <Col span="5"><h2>订单详情<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
+      <Col span="5"><h2>订单详情<Span v-show="noteFlag" style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
       <Col span="3"><Button v-show="importFlag==true" type="primary" icon="ios-cloud-download" @click="exportData(3)">导出</Button></Col>
     </div>
     <div style="clear:both;padding-top:20px;">
@@ -79,6 +79,13 @@ export default {
       detailpageNum: 0,
     //detailpageSize: "10",
       detailData: [],
+      noteFlag: true,
+      options1: {
+          disabledDate (date) {
+            // 24*60*60*1000 = 86400000 代表的是一天二十四小时的毫秒数
+              return date && (date.valueOf() > Date.now() || date.valueOf() < Cookies.get("firstOrderTime")/1000);
+          }
+      },
       columns1: [
         {
           title: "订单笔数",
@@ -175,6 +182,7 @@ export default {
     };
   },
   mounted() {
+    
     let curMeunList =JSON.parse(localStorage.menuList); 
     console.log(curMeunList)
     for (let a in curMeunList){
@@ -263,6 +271,8 @@ export default {
     }
   },
   methods: {
+    // 禁止选择日期
+    
     handleList() {
     this.total = this.detailtotal;
       if (this.detailtotal < 10) {
@@ -350,6 +360,7 @@ export default {
         //   this.detailpageSize = res.data.data.pageSize;
           this.detailData = res.data.data.rows;
           this.handleList();
+          this.noteFlag = false;
         })
         .catch(error => {
             this.date8 = []

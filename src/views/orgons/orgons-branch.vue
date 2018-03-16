@@ -31,22 +31,19 @@
                 </Modal>
                 <Modal v-model="addFlagShow">
                     <p slot="header">
-                        <span>添加子分部</span>
+                        <span>添加分部</span>
                     </p>
                     <div class="modal-content">
                         <span>机构名称：</span><span v-model="topOrganize">{{topOrganize}}</span>
                     </div>
                     <div style="margin-top:20px;">
-                        <span>分部名称：</span><span v-model="newName">{{newName}}</span>
-                    </div>
-                    <div style="margin-top:20px;">
-                        <span>子分部名称：</span><Input  v-model="addnewName" style="width:200px;" placeholder=""></Input>
+                        <span>分部名称：</span><Input  v-model="addnewName" style="width:200px;" placeholder=""></Input>
                     </div>
                     <div v-show="errorTip" style="margin-top:10px; margin-left:80px; color: #FF7F50">
-                            <span>请输入子分部名称</span>
+                            <span>请输入分部名称</span>
                     </div>
                     <div v-show="errorTip2" style="margin-top:10px; margin-left:80px; color: #FF7F50">
-                        <span>此子分部名称已存在，请重新输入</span>
+                        <span>此分部名称已存在，请重新输入</span>
                     </div>
                     <div slot="footer">
                         <Button type="primary" @click="addFlagClose">关闭</Button>
@@ -55,19 +52,19 @@
                 </Modal>
                 <Modal v-model="editFlagShow">
                     <p slot="header">
-                        <span>修改子分部</span>
+                        <span>修改分部</span>
                     </p>
                     <div class="modal-content">
                         <span>机构名称：</span><span v-model="topOrganize">{{topOrganize}}</span>
                     </div>
-                    <div style="margin-top:20px;">
+                    <!-- <div style="margin-top:20px;">
                         <span>分部名称：</span>
                         <i-select v-model="newName" span="6" style="width:200px">
                             <i-option v-for="item in cityList1" :value="item.value">{{ item.label }}</i-option>
                         </i-select>
-                    </div>
+                    </div> -->
                     <div style="margin-top:20px;">
-                        <span>子分部名称：</span><Input v-model="sonNewName" style="width:200px;" placeholder=""></Input>
+                        <span>分部名称：</span><Input v-model="sonNewName" style="width:200px;" placeholder=""></Input>
                     </div>
                     <div slot="footer">
                         <Button type="primary" @click="editFlagClose">关闭</Button>

@@ -38,7 +38,7 @@
     <div style="padding:15px;background:#FFF;overflow:hidden">
         <row style="margin-top:10px">
             <Col span="8">
-                选择月份 ：<Date-picker v-model="DateTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
+                选择月份 ：<Date-picker :options="options1" v-model="DateTime" type="date"  placeholder="选择日期" style="width: 200px"></Date-picker>
             </Col>
         </row>
         <row style="margin-top:10px">
@@ -62,13 +62,13 @@
             </Col>
             <Button @click="searchBtn" v-show="searchFlag" type="primary" icon="ios-search">搜索</Button>
         </row>
-        <h2 style="margin-top:40px">总数据<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
+        <h2 style="margin-top:40px">总数据<Span v-show="noteFlag" style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2>
         <div style="width:600px;margin-top:10px;">
             <Table border :columns="columns1" :data="data1"></Table>
         </div>
 
         <div style="margin-top:40px;">
-            <Col span="5"><h2>订单详情<Span style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
+            <Col span="5"><h2>订单详情<Span v-show="noteFlag" style="font-size:12px;color: #c9c9c9;">（默认显示本月数据）</Span></h2></Col>
             <Col span="3"><Button v-show="exportFlag" type="primary" icon="ios-cloud-download" @click="exportData(3)">导出</Button></Col>
         </div>
         <div style="clear:both;padding-top:20px;">
@@ -96,6 +96,7 @@ export default {
       pageNum: 0,
       total: 0,
       DateTime: "",
+      noteFlag: true,
       organizeDisabled: false,
       sonOrganizeDisabled: false,
       userNameDisabled: false,
@@ -108,6 +109,12 @@ export default {
       detailtotal: 0,
       detailpageNum: 0,
       detailData: "",
+      options1: {
+          disabledDate (date) {
+            // 24*60*60*1000 = 86400000 代表的是一天二十四小时的毫秒数
+              return date && (date.valueOf() > Date.now() || date.valueOf() < Cookies.get("firstOrderTime")/1000);
+          }
+      },
       columns1: [
         { title: "交易总额（元）", key: "totalTurnover" },
         { title: "年化交易总额（元）", key: "totalTurnover_year" },
@@ -318,6 +325,7 @@ export default {
           this.detailtotal = res.data.data.total;
           this.detailData = res.data.data.rows;
           this.handleList();
+          this.noteFlag = false;
         })
         .catch(err => {
             this.date8 = []

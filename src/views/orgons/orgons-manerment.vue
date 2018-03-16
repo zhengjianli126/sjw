@@ -51,7 +51,7 @@
                         <span>修改分部</span>
                     </p>
                     <div class="modal-content">
-                        <span>机构名称：</span><span v-model="topOrganize">{{topOrganize}}</span>
+                        <span>机构名称：</span><span v-model="topmOrganize">{{topmOrganize}}</span>
                     </div>
                     <div style="margin-top:20px;">
                         <span>分部名称：</span><Input v-model="editnewName" style="width:200px;" placeholder=""></Input>
@@ -99,6 +99,7 @@ import Cookies from "js-cookie";
                 detailpageNum: 0,
                 detailData: [],
                 topOrganize: '',
+                topmOrganize: '',
                 addnewName: '',
                 editnewName: '',
                 btnaddFlag :false,
@@ -154,7 +155,7 @@ import Cookies from "js-cookie";
                     {
                         title: '分部名称',
                         align: 'center',
-                        key: 'sonOrganize'
+                        key: 'organize'
                     },
                     {
                         title: '子分部数量',
@@ -223,7 +224,7 @@ import Cookies from "js-cookie";
                     params: {
                         
                     }
-                }).then(res => {console.log(1,res.data.data);
+                }).then(res => {
                     this.total = res.data.data.total;
                     this.pageNum = res.data.data.pageNum;
                     this.data8 = res.data.data.rows;
@@ -265,8 +266,8 @@ import Cookies from "js-cookie";
                 this.errorTip2=false;
             },
             editFlag () {
-                this.topOrganize = Cookies.get("topOrganize");
                 if(this.selectionData.length){
+                    this.topmOrganize = this.selectionData[0].organize;
                     this.editFlagShow = true;
                 }else{
                     this.$Message.warning('请选择一项！');
@@ -298,7 +299,7 @@ import Cookies from "js-cookie";
                         url: '/SJWCRM/addOrganize', 
                         method:'post',
                         params: {
-                            organizeId: this.organizeId,
+                            organizeId: this.topOrganize,
                             newName: this.addnewName
                         }
                     }).then(res => {
@@ -317,7 +318,7 @@ import Cookies from "js-cookie";
                         url: '/SJWCRM/ModifyOrganizeName', 
                         method:'post',
                         params: {
-                            organizeId: this.organizeId,
+                            organizeId: this.params.organizeId,
                             newName: this.editnewName
                         }
                     }).then(res => {
