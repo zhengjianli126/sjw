@@ -154,7 +154,7 @@
         watch:{
             modal1(val){
                 if(!val){
-                    this.model1 =this.model2 = this.model3 = this.dlName = this.ptName =  this.topOrganize = ''
+                   this.zfbId =  this.fbid = this.model1 =this.model2 = this.model3 = this.dlName = this.ptName =  this.topOrganize = ''
                 }
             }
         },
@@ -168,6 +168,7 @@
                 yhQh: '',
                 // 子分部 Id
                 zfbId: '',
+                fbid:'',
                 // 角色Id
                 jsId: '',
                 model1: '',
@@ -228,8 +229,6 @@
                     this.user_id = this.selectionData[0].user_id;
                     this.jsId = this.selectionData[0].roleId;
                     this.model1 = this.selectionData[0].roleName;
-                  
-                  
                     util.ajax('/SJWCRM/returnSystenUserOrganizeMess',{
                         method:'post',
                         params:{
@@ -276,8 +275,10 @@
                             obj.label = res.data.data[i].organizeName;
                             obj.id = res.data.data[i].id;
                             curList.push(obj);
+                            
                         }
                         this.cityList2 = curList;
+                        this.fbid = curList[0].id;
     
                     })
                 } else {
@@ -301,6 +302,7 @@
                         this.OrganizeSonId = this.cityList2[i].id
                     }
                 }
+                this.fbid = this.OrganizeSonId;
                 this.getSelectDataD();
                
             },
@@ -413,11 +415,12 @@
             // 提交 新增
             submiClick() {
                 if (this.enStatus == 1) {
+                    let a = this.zfbId||this.fbid;
                     util.ajax('/SJWCRM/addSystemUser', {
                         method: 'post',
                         params: {
     
-                            organizeId: this.zfbId,
+                            organizeId: a,
                             roleId: this.jsId,
                             loginUserName: this.dlName,
                             userName: this.ptName
@@ -435,11 +438,12 @@
                         }
                     })
                 } else if (this.enStatus == 2) {
+                    let a = this.zfbId||this.fbid;
                     util.ajax('/SJWCRM/modifySystemUserMess', {
                         method: 'post',
                         params: {
                             userId: this.user_id,
-                            organizeId: this.zfbId,
+                            organizeId: a,
                             roleId: this.jsId,
                             loginUserName: this.dlName,
                             userName: this.ptName
@@ -497,7 +501,7 @@
                         curList.push(obj);
                     }
                     this.cityList2 = curList;
-    
+                    this.fbid = curList[0].id
     
                 })
     
