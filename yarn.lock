@@ -2608,6 +2608,10 @@ functional-red-black-tree@^1.0.1:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/functional-red-black-tree/download/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
 
+fundebug-javascript@^0.3.6:
+  version "0.3.6"
+  resolved "http://registry.npm.taobao.org/fundebug-javascript/download/fundebug-javascript-0.3.6.tgz#08540ae5a3a630f06bfc6be4f78ce90067c50be5"
+
 gauge@~2.7.3:
   version "2.7.4"
   resolved "http://registry.npm.taobao.org/gauge/download/gauge-2.7.4.tgz#2c03405c7538c39d7eb37b317022e325fb018bf7"
